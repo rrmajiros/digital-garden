@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TVA Airtable Reports</title>
+    <title>My Digital Garden</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Use Inter font -->
@@ -16,14 +16,47 @@
 <body class="bg-gray-900 text-gray-200 min-h-screen p-4 flex flex-col items-center">
 
     <div class="max-w-6xl w-full mx-auto my-10 p-8 md:p-12 rounded-2xl shadow-xl border border-gray-700">
-        <div class="text-center mb-10">
-            <h1 class="text-3xl sm:text-4xl font-extrabold text-white mb-2">Latest Boom Deployment Calculations</h1>
-            <p class="text-gray-400 max-w-2xl mx-auto">Below is the real-time data from all field reports over the past 24 hours.</p>
-        </div>
+        <header class="text-center mb-10">
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-white mb-2">My Digital Garden</h1>
+            <p class="text-gray-400 max-w-2xl mx-auto">Welcome to my space for growing ideas, projects, and notes. This is a living collection of my work and learning journey.</p>
+        </header>
+        
+        <!-- Placeholder for Notes & Articles -->
+        <section class="mb-12">
+            <div class="text-center mb-6">
+                <h2 class="text-2xl font-bold text-white mb-2">Notes & Articles</h2>
+                <p class="text-gray-400">A collection of my thoughts and in-depth articles on various topics.</p>
+            </div>
+            <div class="w-full">
+                <!-- Replace the src with your actual Airtable notes/articles view embed code -->
+                <iframe class="airtable-embed w-full rounded-xl shadow-inner border border-gray-700" src="https://airtable.com/embed/PLACEHOLDER_FOR_YOUR_NOTES_EMBED_CODE?viewControls=on" frameborder="0" onmousewheel="" width="100%" height="533" style="background: transparent;"></iframe>
+            </div>
+        </section>
 
-        <div class="w-full">
-            <iframe class="airtable-embed w-full rounded-xl shadow-inner border border-gray-700" src="https://airtable.com/embed/app1wD61zpd3QV4wJ/shr9eYi6ZdDTZFvNv?viewControls=on" frameborder="0" onmousewheel="" width="100%" height="533" style="background: transparent;"></iframe>
-        </div>
+        <!-- Placeholder for Projects -->
+        <section class="mb-12">
+            <div class="text-center mb-6">
+                <h2 class="text-2xl font-bold text-white mb-2">Projects</h2>
+                <p class="text-gray-400">A showcase of my projects, both big and small, complete and in-progress.</p>
+            </div>
+            <div class="w-full">
+                <!-- Replace the src with your actual Airtable projects view embed code -->
+                <iframe class="airtable-embed w-full rounded-xl shadow-inner border border-gray-700" src="https://airtable.com/embed/PLACEHOLDER_FOR_YOUR_PROJECTS_EMBED_CODE?viewControls=on" frameborder="0" onmousewheel="" width="100%" height="533" style="background: transparent;"></iframe>
+            </div>
+        </section>
+        
+        <!-- Placeholder for Tools & Technologies -->
+        <section>
+            <div class="text-center mb-6">
+                <h2 class="text-2xl font-bold text-white mb-2">Tools & Technologies</h2>
+                <p class="text-gray-400">The tools and technologies I'm currently using and learning.</p>
+            </div>
+            <div class="w-full">
+                <!-- Replace the src with your actual Airtable tools/technologies view embed code -->
+                <iframe class="airtable-embed w-full rounded-xl shadow-inner border border-gray-700" src="https://airtable.com/embed/PLACEHOLDER_FOR_YOUR_TOOLS_EMBED_CODE?viewControls=on" frameborder="0" onmousewheel="" width="100%" height="533" style="background: transparent;"></iframe>
+            </div>
+        </section>
+
     </div>
 
 </body>
