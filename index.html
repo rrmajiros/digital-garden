@@ -28,7 +28,7 @@
             <h1 class="text-3xl sm:text-4xl font-extrabold text-white mb-2">My Digital Garden</h1>
             <p class="text-gray-400 max-w-2xl mx-auto">Welcome to my space for growing ideas, projects, and notes. This is a living collection of my work and learning journey.</p>
         </header>
-        
+        
         <section class="mb-12">
             <div class="text-center mb-6">
                 <h2 class="text-2xl font-bold text-white mb-2">Notes & Articles</h2>
@@ -40,7 +40,7 @@
             </div>
         </section>
     </div>
-    
+    
         <div id="fullscreen-modal" class="fixed inset-0 bg-gray-950 bg-opacity-90 backdrop-blur-sm flex justify-center items-center p-4 md:p-10 hidden">
         <div class="relative w-full h-full max-w-4xl max-h-[90vh] bg-gray-800 rounded-lg shadow-2xl p-6 md:p-10 overflow-y-auto">
             <button id="modal-close" class="absolute top-4 right-4 text-white text-2xl hover:text-gray-400 transition-colors">
@@ -52,69 +52,45 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-<script>
-    const notesContainer = document.getElementById('notes-container');
-    const modal = document.getElementById('fullscreen-modal');
-    const modalTitle = document.getElementById('modal-title');
-    const modalContent = document.getElementById('modal-content');
-    const modalClose = document.getElementById('modal-close');
+    <script>
+        const notesContainer = document.getElementById('notes-container');
+        const modal = document.getElementById('fullscreen-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalContent = document.getElementById('modal-content');
+        const modalClose = document.getElementById('modal-close');
 
-    function showNoteModal(note) {
-        modalTitle.textContent = note.title;
-        modalContent.innerHTML = marked.parse(note.content || '');
-        modal.classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-    }
+        function showNoteModal(note) {
+            modalTitle.textContent = note.title;
+            modalContent.innerHTML = marked.parse(note.content || '');
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
 
-    function hideNoteModal() {
-        modal.classList.add('hidden');
-        document.body.style.overflow = 'auto';
-    }
+        function hideNoteModal() {
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
 
-    modalClose.addEventListener('click', hideNoteModal);
-    modal.addEventListener('click', (e) => {
-        if (e.target.id === 'fullscreen-modal') {
-            hideNoteModal();
-        }
-    });
+        modalClose.addEventListener('click', hideNoteModal);
+        modal.addEventListener('click', (e) => {
+            if (e.target.id === 'fullscreen-modal') {
+                hideNoteModal();
+            }
+        });
 
-    async function fetchNotes() {
-        try {
-            const response = await fetch('/api/notes');
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            const notes = await response.json();
+        async function fetchNotes() {
+            try {
+                const response = await fetch('/api/notes');
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const notes = await response.json();
 
-            if (notes.length === 0) {
-                notesContainer.innerHTML = '<p class="text-center text-gray-400">No notes found.</p>';
-                return;
-            }
+                if (notes.length === 0) {
+                    notesContainer.innerHTML = '<p class="text-center text-gray-400">No notes found.</p>';
+                    return;
+                }
 
-            notes.forEach(note => {
-                const noteCard = document.createElement('div');
-                noteCard.className = 'p-6 bg-gray-800 rounded-lg shadow-md border border-gray-700 hover:bg-gray-700 transition-colors duration-200 cursor-pointer';
-
-                const htmlSnippet = marked.parse(note.content || '');
-
-                noteCard.innerHTML = `
-                    <h3 class="text-xl font-bold text-white mb-2">${note.title}</h3>
-                    <div class="prose prose-invert max-w-none text-gray-400 line-clamp-3">
-                        ${htmlSnippet}
-                    </div>
-                `;
-
-                noteCard.addEventListener('click', () => showNoteModal(note));
-                notesContainer.appendChild(noteCard);
-            });
-
-        } catch (error) {
-            console.error('Error fetching notes:', error);
-            notesContainer.innerHTML = '<p class="text-red-400 text-center">Failed to load notes. Please try again later.</p>';
-        }
-    }
-
-    document.addEventListener('DOMContentLoaded', fetchNotes);
-</script>
-</body>
-</html>
+                notes.forEach(note => {
+                    const noteCard = document.createElement('div');
+                    noteCard.className = 'p-
