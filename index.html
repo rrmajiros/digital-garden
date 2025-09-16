@@ -52,74 +52,77 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script>
-        const notesContainer = document.getElementById('notes-container');
-        const modal = document.getElementById('fullscreen-modal');
-        const modalTitle = document.getElementById('modal-title');
-        const modalContent = document.getElementById('modal-content');
-        const modalClose = document.getElementById('modal-close');
+<script>
+    const notesContainer = document.getElementById('notes-container');
+    const modal = document.getElementById('fullscreen-modal');
+    const modalTitle = document.getElementById('modal-title');
+    const modalContent = document.getElementById('modal-content');
+    const modalClose = document.getElementById('modal-close');
 
-        // Function to show the modal with full content
-        function showNoteModal(note) {
-            modalTitle.textContent = note.title;
-            modalContent.innerHTML = marked.parse(note.content || '');
-            modal.classList.remove('hidden');
-            document.body.style.overflow = 'hidden'; // Prevents scrolling behind the modal
-        }
+    function showNoteModal(note) {
+        modalTitle.textContent = note.title;
+        modalContent.innerHTML = marked.parse(note.content || '');
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
 
-        // Function to hide the modal
-        function hideNoteModal() {
-            modal.classList.add('hidden');
-            document.body.style.overflow = 'auto'; // Restores scrolling
-        }
+    function hideNoteModal() {
+        modal.classList.add('hidden');
+        document.body.style.overflow = 'auto';
+    }
 
-        // Add event listener to close button
-        modalClose.addEventListener('click', hideNoteModal);
-        // Close modal on backdrop click
-        modal.addEventListener('click', (e) => {
-            if (e.target.id === 'fullscreen-modal') {
-                hideNoteModal();
-            }
-        });
+    modalClose.addEventListener('click', hideNoteModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target.id === 'fullscreen-modal') {
+            hideNoteModal();
+        }
+    });
 
-        async function fetchNotes() {
-            try {
-                const response = await fetch('/api/notes');
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                const notes = await response.json();
+    async function fetchNotes() {
+        try {
+            const response = await fetch('/api/notes');
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const notes = await response.json();
 
-                if (notes.length === 0) {
-                    notesContainer.innerHTML = '<p class="text-center text-gray-400">No notes found.</p>';
-                    return;
-                }
+            if (notes.length === 0) {
+                notesContainer.innerHTML = '<p class="text-center text-gray-400">No notes found.</p>';
+                return;
+            }
 
-                notes.forEach(note => {
-                    const noteCard = document.createElement('div');
-                    noteCard.className = 'p-6 bg-gray-800 rounded-lg shadow-md border border-gray-700 hover:bg-gray-700 transition-colors duration-200 cursor-pointer';
-                    
-                    const htmlSnippet = marked.parse(note.content || '');
+            // Check if there are only two notes
+            if (notes.length === 2) {
+                notesContainer.className = 'flex justify-center gap-6';
+            } else {
+                // Use the default grid layout for other cases
+                notesContainer.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6';
+            }
 
-                    noteCard.innerHTML = `
-                        <h3 class="text-xl font-bold text-white mb-2">${note.title}</h3>
-                        <div class="prose prose-invert max-w-none text-gray-400 line-clamp-3">
-                            ${htmlSnippet}
-                        </div>
-                    `;
-                    
-                    // Add click listener to show the modal
-                    noteCard.addEventListener('click', () => showNoteModal(note));
-                    notesContainer.appendChild(noteCard);
-                });
+            notes.forEach(note => {
+                const noteCard = document.createElement('div');
+                noteCard.className = 'p-6 bg-gray-800 rounded-lg shadow-md border border-gray-700 hover:bg-gray-700 transition-colors duration-200 cursor-pointer';
 
-            } catch (error) {
-                console.error('Error fetching notes:', error);
-                notesContainer.innerHTML = '<p class="text-red-400 text-center">Failed to load notes. Please try again later.</p>';
-            }
-        }
+                const htmlSnippet = marked.parse(note.content || '');
 
-        document.addEventListener('DOMContentLoaded', fetchNotes);
-    </script>
+                noteCard.innerHTML = `
+                    <h3 class="text-xl font-bold text-white mb-2">${note.title}</h3>
+                    <div class="prose prose-invert max-w-none text-gray-400 line-clamp-3">
+                        ${htmlSnippet}
+                    </div>
+                `;
+
+                noteCard.addEventListener('click', () => showNoteModal(note));
+                notesContainer.appendChild(noteCard);
+            });
+
+        } catch (error) {
+            console.error('Error fetching notes:', error);
+            notesContainer.innerHTML = '<p class="text-red-400 text-center">Failed to load notes. Please try again later.</p>';
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', fetchNotes);
+</script>
 </body>
 </html>
