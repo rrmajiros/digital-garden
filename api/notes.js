@@ -7,9 +7,9 @@ const base = new Airtable({apiKey: process.env.AIRTABLE_API_KEY}).base(process.e
 export default async function handler(req, res) {
   try {
     const records = await base('Notes').select({
-      // Your view name here. Make sure to create a view that only contains the fields you want to display.
+      // Filters for records where the "Status" field is exactly "Published"
+      filterByFormula: "{Status} = 'Published'",
       view: "Grid view", 
-      // Maximum number of records to return
       pageSize: 10
     }).all();
 
