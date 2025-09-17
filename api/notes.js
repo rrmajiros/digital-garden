@@ -1,28 +1,30 @@
-// api/notes.js
-import Airtable from 'airtable';
+const Airtable = require('airtable');
 
-// Initialize Airtable with secrets from Vercel environment variables
-const base = new Airtable({apiKey: process.env.AIRTABLE_API_KEY}).base(process.env.AIRTABLE_BASE_ID);
+// Make sure your environment variables are set correctly in Vercel
+const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(process.env.AIRTABLE_BASE_ID);
 
-export default async function handler(req, res) {
-  try {
-    const records = await base('Notes').select({
-      // Filters for records where the "Status" field is exactly "Published"
-      filterByFormula: "{Status} = 'Published'",
-      view: "Grid view", 
-      pageSize: 10
-    }).all();
+module.exports = async (req, res) => {
+    try {
+        const records = await base('Notes').select({
+            view: 'Grid view'
+        }).firstPage();
 
-    const formattedRecords = records.map(record => ({
-      id: record.id,
-      title: record.get('Title'),
-      content: record.get('Content'),
-      status: record.get('Status')
-    }));
+        const formattedRecords = records.map(record => {
+            return {
+                id: record.id,
+                title: record.get('Title') || 'No Title',
+                content: record.get('Content') || 'No content available.',
+                tags: record.get('Tags') || [],
+                created: record.get('Created')
+            };
+        });
 
-    res.status(200).json(formattedRecords);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to fetch data' });
-  }
-}
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(formattedRecords);
+    } catch (error) {
+        console.error('Airtable API error:', error);
+        res.statusCode = 500;
+        res.json({ error: 'Failed to fetch notes from Airtable.' });
+    }
+};
