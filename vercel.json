@@ -1,10 +1,17 @@
-
 {
-  "functions": {
-    "api/**/*.js": {
-      "runtime": "node@20.x"
+  "framework": null,
+  "cleanUrls": true,
+  "redirects": [],
+  "builds": [
+    {
+      "src": "api/notes.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "api/fetch-rss.js",
+      "use": "@vercel/node"
     }
-  },
+  ],
   "rewrites": [
     {
       "source": "/api/notes",
