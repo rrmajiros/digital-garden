@@ -5,6 +5,7 @@
   "dependencies": {
     "airtable": "^0.12.2",
     "striptags": "^3.2.0",
-    "marked": "^4.0.0"
+    "marked": "^4.0.0",
+    "node-fetch": "^2.6.7"
   }
 }
