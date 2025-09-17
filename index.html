@@ -65,6 +65,8 @@
 <script>
     async function fetchGoogleAlerts() {
         const alertsContainer = document.getElementById('alerts-container');
+        alertsContainer.innerHTML = ''; // Clear container before fetching
+        
         try {
             const response = await fetch('/api/fetch-rss');
             if (!response.ok) {
@@ -83,9 +85,14 @@
             }
             
             entries.forEach(entry => {
-                const title = entry.querySelector('title').textContent;
-                const link = entry.querySelector('link').getAttribute('href');
-                const summary = entry.querySelector('summary').textContent;
+                const titleElement = entry.querySelector('title');
+                const linkElement = entry.querySelector('link');
+                const summaryElement = entry.querySelector('summary');
+
+                // Safely read the content, providing a default if an element is missing
+                const title = titleElement ? titleElement.textContent : 'No Title';
+                const link = linkElement ? linkElement.getAttribute('href') : '#';
+                const summary = summaryElement ? summaryElement.textContent : 'No summary available.';
                 
                 const card = document.createElement('a');
                 card.href = link;
