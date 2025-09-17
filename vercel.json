@@ -1,0 +1,17 @@
+{
+  "functions": {
+    "api/**/*.js": {
+      "runtime": "vercel-node@20.x"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/notes",
+      "destination": "/api/notes.js"
+    },
+    {
+      "source": "/api/fetch-rss",
+      "destination": "/api/fetch-rss.js"
+    }
+  ]
+}
