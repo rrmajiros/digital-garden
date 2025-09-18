@@ -1,31 +1,30 @@
 const Parser = require('rss-parser');
 
-// Your two RSS feed URLs.
+// This code pulls the URLs from Vercel's environment variables
 const FEED_URLS = [
-    // This is the first feed for the "Villa Vie Odyssey"
-    'https://www.google.com/alerts/feeds/18371521636352342425/559154728326149831',
-    // This is the new feed for "Residential Cruising"
-    'https://www.google.com/alerts/feeds/18371521636352342425/559154728326149831'
+    process.env.VILLA_VIE_FEED,
+    process.env.RESIDENTIAL_CRUISING_FEED
 ];
 
-// Initialize the RSS parser
 const parser = new Parser();
 
-// Vercel serverless function
 module.exports = async (req, res) => {
     try {
         const allEntries = [];
 
-        // Fetch each feed and combine the entries
+        // Check if environment variables are set
+        if (!process.env.VILLA_VIE_FEED || !process.env.RESIDENTIAL_CRUISING_FEED) {
+            console.error('Environment variables for feeds are not set.');
+            return res.status(500).json({ error: 'Feed URLs are not configured.' });
+        }
+
         for (const url of FEED_URLS) {
             const feed = await parser.parseURL(url);
             allEntries.push(...feed.items);
         }
 
-        // Sort the entries by publication date
         allEntries.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
 
-        // Create a basic XML document to hold the combined entries
         let combinedFeedXML = '<?xml version="1.0" encoding="UTF-8"?>';
         combinedFeedXML += '<feed>';
         
@@ -39,7 +38,6 @@ module.exports = async (req, res) => {
         
         combinedFeedXML += '</feed>';
 
-        // Set the content type and send the response
         res.setHeader('Content-Type', 'application/xml');
         res.status(200).send(combinedFeedXML);
 
