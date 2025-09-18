@@ -1,9 +1,9 @@
 const Parser = require('rss-parser');
 
-// This code pulls the URLs from Vercel's environment variables
+// Your two RSS feed URLs.
 const FEED_URLS = [
     process.env.VILLA_VIE_FEED,
-    process.env.RESIDENTIAL_CRUISING_FEED
+    // process.env.RESIDENTIAL_CRUISING_FEED // Commented out to test the first feed
 ];
 
 const parser = new Parser();
