@@ -11,10 +11,16 @@ module.exports = async (req, res) => {
         }).firstPage();
 
         const notes = records.map(record => {
+            let content = record.get('Content');
+            if (content) {
+                // Convert line breaks from the Airtable output to <br> tags
+                content = content.replace(/\n/g, '<br>');
+            }
+
             return {
                 id: record.id,
                 title: record.get('Title'),
-                content: record.get('Content') // This gets the rich text content
+                content: content
             };
         });
 
