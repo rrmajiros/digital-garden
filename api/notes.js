@@ -1,20 +1,24 @@
+const Airtable = require('airtable');
+
+const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(process.env.AIRTABLE_BASE_ID);
+
 function convertAirtableRichTextToHtml(richTextData) {
     if (!richTextData) {
         return '';
     }
-    
-    // Check if the data is a simple string
+
     if (typeof richTextData === 'string') {
         return richTextData.replace(/\n/g, '<br>');
     }
 
-    // Process the new rich text format (array of blocks)
     if (Array.isArray(richTextData)) {
         let html = '';
+        let inList = false;
+
         richTextData.forEach(block => {
+            const blockType = block.type;
             let text = block.text || '';
 
-            // Apply styles based on attributes
             if (block.attributes) {
                 if (block.attributes.bold) {
                     text = `<strong>${text}</strong>`;
@@ -22,31 +26,71 @@ function convertAirtableRichTextToHtml(richTextData) {
                 if (block.attributes.italic) {
                     text = `<em>${text}</em>`;
                 }
-                // Check for bullet points. They are represented by a richText.list_item type.
-                if (block.type === 'richText.list_item') {
-                    text = `<li>${text}</li>`;
-                }
             }
-            
-            // Handle block types
-            if (block.type === 'richText.paragraph') {
-                html += `<p>${text}</p>`;
-            } else if (block.type === 'richText.heading') {
-                // Determine the heading level and apply the correct tag
-                const headingLevel = block.attributes.level || 1;
-                html += `<h${headingLevel}>${text}</h${headingLevel}>`;
-            } else if (block.type === 'richText.list') {
-                // This wraps the list items
-                html += `<ul>${text}</ul>`;
-            } else if (block.type === 'richText.list_item') {
-                html += text;
-            } else {
-                html += text;
+
+            switch (blockType) {
+                case 'richText.paragraph':
+                    if (inList) {
+                        html += '</ul>';
+                        inList = false;
+                    }
+                    html += `<p>${text}</p>`;
+                    break;
+                case 'richText.heading':
+                    if (inList) {
+                        html += '</ul>';
+                        inList = false;
+                    }
+                    const headingLevel = block.attributes.level || 1;
+                    html += `<h${headingLevel}>${text}</h${headingLevel}>`;
+                    break;
+                case 'richText.list_item':
+                    if (!inList) {
+                        html += '<ul>';
+                        inList = true;
+                    }
+                    html += `<li>${text}</li>`;
+                    break;
+                default:
+                    if (inList) {
+                        html += '</ul>';
+                        inList = false;
+                    }
+                    html += text;
             }
         });
+
+        if (inList) {
+            html += '</ul>';
+        }
+
         return html;
     }
-    
-    // Return an empty string if the format is not recognized
+
     return '';
 }
+
+module.exports = async (req, res) => {
+    try {
+        const records = await base('Notes').select({
+            view: 'Grid view',
+            fields: ['Title', 'Content']
+        }).firstPage();
+
+        const notes = records.map(record => {
+            const richTextContent = record.get('Content');
+            const htmlContent = convertAirtableRichTextToHtml(richTextContent);
+
+            return {
+                id: record.id,
+                title: record.get('Title'),
+                content: htmlContent
+            };
+        });
+
+        res.status(200).json(notes);
+    } catch (error) {
+        console.error('Error in api/notes.js:', error);
+        res.status(500).json({ error: 'Failed to fetch notes.' });
+    }
+};
