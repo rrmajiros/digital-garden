@@ -1,8 +1,8 @@
 const Parser = require('rss-parser');
 
+// We are only using the first feed for now
 const FEED_URLS = [
-    process.env.VILLA_VIE_FEED,
-    process.env.RESIDENTIAL_CRUISING_FEED
+    process.env.VILLA_VIE_FEED
 ];
 
 const parser = new Parser();
@@ -11,7 +11,7 @@ module.exports = async (req, res) => {
     try {
         const allEntries = [];
 
-        if (!process.env.VILLA_VIE_FEED || !process.env.RESIDENTIAL_CRUISING_FEED) {
+        if (!process.env.VILLA_VIE_FEED) {
             console.error('Environment variables for feeds are not set.');
             res.setHeader('Content-Type', 'application/xml');
             res.status(200).send('<error>Feed URLs are not configured.</error>');
@@ -48,9 +48,6 @@ module.exports = async (req, res) => {
         });
         
         combinedFeedXML += '</feed>';
-
-        // Log the final XML before sending it to the client
-        console.log('Final XML to be sent:', combinedFeedXML);
 
         res.setHeader('Content-Type', 'application/xml');
         res.setHeader('Cache-Control', 'no-store, max-age=0');
