@@ -1,4 +1,5 @@
 const Airtable = require('airtable');
+const { marked } = require('marked');
 
 const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(process.env.AIRTABLE_BASE_ID);
 
@@ -10,17 +11,14 @@ module.exports = async (req, res) => {
         }).firstPage();
 
         const notes = records.map(record => {
-            const richTextContent = record.get('Content');
-            
-            // Log the raw data here for debugging
-            console.log('--- RAW AIRTABLE CONTENT ---');
-            console.log(JSON.stringify(richTextContent, null, 2));
-            console.log('--- END RAW CONTENT ---');
-            
+            let content = record.get('Content');
+            if (content) {
+                content = marked.parse(content);
+            }
             return {
                 id: record.id,
                 title: record.get('Title'),
-                content: richTextContent // Sending the raw data for now
+                content: content
             };
         });
 
