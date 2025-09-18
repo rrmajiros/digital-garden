@@ -1,34 +1,58 @@
 const Airtable = require('airtable');
-const { marked } = require('marked');
 
 // Make sure your Airtable credentials are set up as environment variables
 const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(process.env.AIRTABLE_BASE_ID);
 
+function convertAirtableRichTextToHtml(richTextData) {
+    if (!richTextData || richTextData.length === 0) {
+        return '';
+    }
+
+    let html = '';
+    richTextData.forEach(block => {
+        if (block.text) {
+            let text = block.text;
+
+            // Apply bolding
+            if (block.attributes && block.attributes.bold) {
+                text = `<strong>${text}</strong>`;
+            }
+
+            // Apply italics
+            if (block.attributes && block.attributes.italic) {
+                text = `<em>${text}</em>`;
+            }
+
+            html += text;
+        }
+
+        // Handle new lines
+        if (block.type === 'richText.paragraph') {
+            html += '<br>';
+        }
+    });
+
+    return html;
+}
+
 module.exports = async (req, res) => {
     try {
-        console.log('Attempting to fetch notes from Airtable...');
-
         const records = await base('Notes').select({
             view: 'Grid view',
-            fields: ['Title', 'Content'],
-            cellFormat: 'markdown'
+            fields: ['Title', 'Content']
         }).firstPage();
 
-        console.log(`Fetched ${records.length} records.`);
-
         const notes = records.map(record => {
-            let content = record.get('Content');
-            if (content) {
-                content = marked.parse(content);
-            }
+            const richTextContent = record.get('Content');
+            const htmlContent = convertAirtableRichTextToHtml(richTextContent);
+
             return {
                 id: record.id,
                 title: record.get('Title'),
-                content: content
+                content: htmlContent
             };
         });
 
-        console.log('Notes successfully processed. Sending to client.');
         res.status(200).json(notes);
     } catch (error) {
         console.error('Error in api/notes.js:', error);
