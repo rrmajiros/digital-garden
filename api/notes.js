@@ -11,18 +11,14 @@ module.exports = async (req, res) => {
         }).firstPage();
 
         const notes = records.map(record => {
-            const rawContent = record.get('Content');
-            
-            // Log the raw data here for debugging
-            console.log('--- RAW AIRTABLE CONTENT START ---');
-            console.log(JSON.stringify(rawContent, null, 2));
-            console.log('--- RAW AIRTABLE CONTENT END ---');
-            
-            // For now, we are just sending the raw data to the client
+            let content = record.get('Content');
+            if (content) {
+                content = marked.parse(content);
+            }
             return {
                 id: record.id,
                 title: record.get('Title'),
-                content: rawContent
+                content: content
             };
         });
 
