@@ -149,50 +149,59 @@
     try {
         alertsContainer.innerHTML = '';
         const response = await fetch('/api/fetch-rss');
-        const feedText = await response.text();
         
-        // Sanitize the XML string before parsing
-        const sanitizedFeedText = feedText.replace(/&/g, '&amp;').trim();
-        
-        const parser = new DOMParser();
-        const xmlDoc = parser.parseFromString(sanitizedFeedText, 'application/xml');
-
-        const serverError = xmlDoc.querySelector('error');
-        if (serverError) {
-            console.error('Server-side error:', serverError.textContent);
-            alertsContainer.innerHTML = `<p class="text-red-400 text-center">Server Error: ${serverError.textContent}</p>`;
+        if (!response.ok) {
+            alertsContainer.innerHTML = '<p class="text-red-400 text-center">Failed to load alerts.</p>';
             return;
         }
 
-        const entries = xmlDoc.querySelectorAll('entry');
-        
-        if (entries.length === 0) {
-            alertsContainer.innerHTML = '<p class="text-center text-green-400">No alerts found.</p>';
+        const feedsData = await response.json();
+
+        if (feedsData.error) {
+            alertsContainer.innerHTML = `<p class="text-red-400 text-center">Server Error: ${feedsData.error}</p>`;
             return;
         }
-        
-        let allCardsHtml = '';
-        
-        entries.forEach(entry => {
-            const titleElement = entry.querySelector('title');
-            const linkElement = entry.querySelector('link');
-            const summaryElement = entry.querySelector('summary') || entry.querySelector('description') || entry.querySelector('content');
 
-            const title = titleElement ? titleElement.textContent : 'No Title';
-            const link = linkElement ? linkElement.getAttribute('href') : '#';
-            const summary = summaryElement ? summaryElement.textContent : 'No summary available.';
+        // Loop through each feed and create a new section for it
+        for (const feedKey in feedsData) {
+            const feedItems = feedsData[feedKey];
+            const feedTitle = feedKey === 'villaVie' ? 'Villa Vie' : 'Residential Cruising';
             
-            const cardHtml = `
-                <a href="${link}" target="_blank" class="p-6 bg-gray-800 rounded-lg shadow-md border border-gray-700 hover:bg-gray-700 transition-colors duration-200 cursor-pointer block">
+            // Create a new container for this feed's articles
+            const feedSection = document.createElement('section');
+            feedSection.className = 'w-full mb-12';
+            feedSection.innerHTML = `
+                <div class="text-center mb-6">
+                    <h2 class="text-2xl font-bold text-white mb-2">${feedTitle}</h2>
+                </div>
+                <div id="${feedKey}-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            `;
+            
+            alertsContainer.appendChild(feedSection);
+            const currentContainer = document.getElementById(`${feedKey}-container`);
+
+            if (feedItems.length === 0) {
+                currentContainer.innerHTML = '<p class="text-center text-green-400 col-span-full">No alerts found.</p>';
+                continue;
+            }
+
+            feedItems.forEach(entry => {
+                const title = entry.title || 'No Title';
+                const link = entry.link || '#';
+                const summary = entry.contentSnippet || entry.summary || 'No summary available.';
+                
+                const card = document.createElement('a');
+                card.href = link;
+                card.target = "_blank";
+                card.className = 'p-6 bg-gray-800 rounded-lg shadow-md border border-gray-700 hover:bg-gray-700 transition-colors duration-200 cursor-pointer block';
+                
+                card.innerHTML = `
                     <h3 class="text-lg font-bold text-white mb-1 line-clamp-2">${title}</h3>
                     <p class="text-sm text-green-400 line-clamp-3">${summary}</p>
-                </a>
-            `;
-            allCardsHtml += cardHtml;
-        });
-
-        alertsContainer.innerHTML = allCardsHtml;
-        
+                `;
+                currentContainer.appendChild(card);
+            });
+        }
     } catch (error) {
         console.error('Error fetching alerts:', error);
         alertsContainer.innerHTML = '<p class="text-red-400 text-center">Failed to load alerts.</p>';
