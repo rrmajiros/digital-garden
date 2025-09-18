@@ -1,6 +1,5 @@
 const Parser = require('rss-parser');
 
-// This code pulls the URLs from Vercel's environment variables
 const FEED_URLS = [
     process.env.VILLA_VIE_FEED,
     process.env.RESIDENTIAL_CRUISING_FEED
@@ -12,10 +11,12 @@ module.exports = async (req, res) => {
     try {
         const allEntries = [];
 
-        // Check if environment variables are set
         if (!process.env.VILLA_VIE_FEED || !process.env.RESIDENTIAL_CRUISING_FEED) {
             console.error('Environment variables for feeds are not set.');
-            return res.status(500).json({ error: 'Feed URLs are not configured.' });
+            // Send an XML error response so the front-end can handle it gracefully
+            res.setHeader('Content-Type', 'application/xml');
+            res.status(200).send('<error>Feed URLs are not configured.</error>');
+            return;
         }
 
         for (const url of FEED_URLS) {
@@ -23,17 +24,15 @@ module.exports = async (req, res) => {
                 const feed = await parser.parseURL(url);
                 allEntries.push(...feed.items);
             } catch (urlError) {
-                // Log a specific error for the URL that failed
                 console.error(`Error parsing or fetching URL: ${url}`, urlError);
-                // Continue to the next URL instead of crashing
             }
         }
 
-        // Check if we successfully fetched any entries at all
         if (allEntries.length === 0) {
-            // This happens if both feeds failed
             console.error('All feeds failed to load.');
-            return res.status(500).json({ error: 'All feeds failed to load.' });
+            res.setHeader('Content-Type', 'application/xml');
+            res.status(200).send('<error>All feeds failed to load.</error>');
+            return;
         }
 
         allEntries.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
@@ -51,11 +50,14 @@ module.exports = async (req, res) => {
         
         combinedFeedXML += '</feed>';
 
+        // Add the Cache-Control headers here to prevent caching
         res.setHeader('Content-Type', 'application/xml');
+        res.setHeader('Cache-Control', 'no-store, max-age=0');
         res.status(200).send(combinedFeedXML);
 
     } catch (error) {
         console.error('Error in main try-catch block:', error);
-        res.status(500).json({ error: 'Failed to fetch RSS feeds.' });
+        res.setHeader('Content-Type', 'application/xml');
+        res.status(200).send('<error>Failed to fetch RSS feeds due to a server error.</error>');
     }
 };
