@@ -2,74 +2,6 @@ const Airtable = require('airtable');
 
 const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(process.env.AIRTABLE_BASE_ID);
 
-function convertAirtableRichTextToHtml(richTextData) {
-    if (!richTextData) {
-        return '';
-    }
-
-    if (typeof richTextData === 'string') {
-        return richTextData.replace(/\n/g, '<br>');
-    }
-
-    if (Array.isArray(richTextData)) {
-        let html = '';
-        let inList = false;
-
-        richTextData.forEach(block => {
-            const blockType = block.type;
-            let text = block.text || '';
-
-            if (block.attributes) {
-                if (block.attributes.bold) {
-                    text = `<strong>${text}</strong>`;
-                }
-                if (block.attributes.italic) {
-                    text = `<em>${text}</em>`;
-                }
-            }
-
-            switch (blockType) {
-                case 'richText.paragraph':
-                    if (inList) {
-                        html += '</ul>';
-                        inList = false;
-                    }
-                    html += `<p>${text}</p>`;
-                    break;
-                case 'richText.heading':
-                    if (inList) {
-                        html += '</ul>';
-                        inList = false;
-                    }
-                    const headingLevel = block.attributes.level || 1;
-                    html += `<h${headingLevel}>${text}</h${headingLevel}>`;
-                    break;
-                case 'richText.list_item':
-                    if (!inList) {
-                        html += '<ul>';
-                        inList = true;
-                    }
-                    html += `<li>${text}</li>`;
-                    break;
-                default:
-                    if (inList) {
-                        html += '</ul>';
-                        inList = false;
-                    }
-                    html += text;
-            }
-        });
-
-        if (inList) {
-            html += '</ul>';
-        }
-
-        return html;
-    }
-
-    return '';
-}
-
 module.exports = async (req, res) => {
     try {
         const records = await base('Notes').select({
@@ -79,12 +11,16 @@ module.exports = async (req, res) => {
 
         const notes = records.map(record => {
             const richTextContent = record.get('Content');
-            const htmlContent = convertAirtableRichTextToHtml(richTextContent);
-
+            
+            // Log the raw data here for debugging
+            console.log('--- RAW AIRTABLE CONTENT ---');
+            console.log(JSON.stringify(richTextContent, null, 2));
+            console.log('--- END RAW CONTENT ---');
+            
             return {
                 id: record.id,
                 title: record.get('Title'),
-                content: htmlContent
+                content: richTextContent // Sending the raw data for now
             };
         });
 
