@@ -149,36 +149,29 @@
     try {
         alertsContainer.innerHTML = '';
         const response = await fetch('/api/fetch-rss');
-        
         const feedText = await response.text();
         
-        const parser = new DOMParser();
-        const xmlDoc = parser.parseFromString(feedText, 'application/xml');
+        // This is the new parsing logic that works around browser XML issues
+        const entryRegex = /<entry>([\s\S]*?)<\/entry>/g;
+        const entries = [...feedText.matchAll(entryRegex)];
 
-        const serverError = xmlDoc.querySelector('error');
-        if (serverError) {
-            console.error('Server-side error:', serverError.textContent);
-            alertsContainer.innerHTML = `<p class="text-red-400 text-center">Server Error: ${serverError.textContent}</p>`;
-            return;
-        }
-
-        const entries = xmlDoc.querySelectorAll('entry');
-        
         if (entries.length === 0) {
             alertsContainer.innerHTML = '<p class="text-center text-green-400">No alerts found.</p>';
             return;
         }
-        
+
         let allCardsHtml = '';
         
-        entries.forEach(entry => {
-            const titleElement = entry.querySelector('title');
-            const linkElement = entry.querySelector('link');
-            const summaryElement = entry.querySelector('summary') || entry.querySelector('description') || entry.querySelector('content');
+        entries.forEach(match => {
+            const entryText = match[1];
+            
+            const titleMatch = /<title>(.*?)<\/title>/.exec(entryText);
+            const linkMatch = /<link href="(.*?)"\/>/.exec(entryText);
+            const summaryMatch = /<summary>([\s\S]*?)<\/summary>/.exec(entryText);
 
-            const title = titleElement ? titleElement.textContent : 'No Title';
-            const link = linkElement ? linkElement.getAttribute('href') : '#';
-            const summary = summaryElement ? summaryElement.textContent : 'No summary available.';
+            const title = titleMatch ? titleMatch[1] : 'No Title';
+            const link = linkMatch ? linkMatch[1] : '#';
+            const summary = summaryMatch ? summaryMatch[1].trim() : 'No summary available.';
             
             const cardHtml = `
                 <a href="${link}" target="_blank" class="p-6 bg-gray-800 rounded-lg shadow-md border border-gray-700 hover:bg-gray-700 transition-colors duration-200 cursor-pointer block">
