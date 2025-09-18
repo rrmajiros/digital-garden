@@ -6,11 +6,15 @@ const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(process
 
 module.exports = async (req, res) => {
     try {
+        console.log('Attempting to fetch notes from Airtable...');
+
         const records = await base('Notes').select({
             view: 'Grid view',
             fields: ['Title', 'Content'],
-            cellFormat: 'markdown' // This is the key fix
+            cellFormat: 'markdown'
         }).firstPage();
+
+        console.log(`Fetched ${records.length} records.`);
 
         const notes = records.map(record => {
             let content = record.get('Content');
@@ -24,9 +28,10 @@ module.exports = async (req, res) => {
             };
         });
 
+        console.log('Notes successfully processed. Sending to client.');
         res.status(200).json(notes);
     } catch (error) {
-        console.error('Error fetching notes:', error);
+        console.error('Error in api/notes.js:', error);
         res.status(500).json({ error: 'Failed to fetch notes.' });
     }
 };
