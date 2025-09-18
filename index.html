@@ -135,50 +135,51 @@
         }
         
         async function fetchGoogleAlerts() {
-            try {
-                alertsContainer.innerHTML = '';
-                const response = await fetch('/api/fetch-rss');
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                const feedText = await response.text();
-                
-                const parser = new DOMParser();
-                const xmlDoc = parser.parseFromString(feedText, 'application/xml');
-                
-                const entries = xmlDoc.querySelectorAll('entry');
-                
-                if (entries.length === 0) {
-                    alertsContainer.innerHTML = '<p class="text-center text-green-400">No alerts found.</p>';
-                    return;
-                }
-                
-                entries.forEach(entry => {
-                    const titleElement = entry.querySelector('title');
-                    const linkElement = entry.querySelector('link');
-                    const summaryElement = entry.querySelector('summary');
-
-                    const title = titleElement ? titleElement.textContent : 'No Title';
-                    const link = linkElement ? linkElement.getAttribute('href') : '#';
-                    const summary = summaryElement ? summaryElement.textContent : 'No summary available.';
-                    
-                    const card = document.createElement('a');
-                    card.href = link;
-                    card.target = "_blank";
-                    card.className = 'p-6 bg-gray-800 rounded-lg shadow-md border border-gray-700 hover:bg-gray-700 transition-colors duration-200 cursor-pointer block';
-                    
-                    card.innerHTML = `
-                        <h3 class="text-lg font-bold text-white mb-1 line-clamp-2">${title}</h3>
-                        <p class="text-sm text-green-400 line-clamp-3">${summary}</p>
-                    `;
-                    alertsContainer.appendChild(card);
-                });
-                
-            } catch (error) {
-                console.error('Error fetching alerts:', error);
-                alertsContainer.innerHTML = '<p class="text-red-400 text-center">Failed to load alerts.</p>';
-            }
+    try {
+        alertsContainer.innerHTML = '';
+        const response = await fetch('/api/fetch-rss');
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
         }
+        const feedText = await response.text();
+        
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(feedText, 'application/xml');
+        
+        const entries = xmlDoc.querySelectorAll('entry');
+        
+        if (entries.length === 0) {
+            alertsContainer.innerHTML = '<p class="text-center text-green-400">No alerts found.</p>';
+            return;
+        }
+        
+        entries.forEach(entry => {
+            const titleElement = entry.querySelector('title');
+            const linkElement = entry.querySelector('link');
+            // Look for summary, description, or content
+            const summaryElement = entry.querySelector('summary') || entry.querySelector('description') || entry.querySelector('content');
+
+            const title = titleElement ? titleElement.textContent : 'No Title';
+            const link = linkElement ? linkElement.getAttribute('href') : '#';
+            const summary = summaryElement ? summaryElement.textContent : 'No summary available.';
+            
+            const card = document.createElement('a');
+            card.href = link;
+            card.target = "_blank";
+            card.className = 'p-6 bg-gray-800 rounded-lg shadow-md border border-gray-700 hover:bg-gray-700 transition-colors duration-200 cursor-pointer block';
+            
+            card.innerHTML = `
+                <h3 class="text-lg font-bold text-white mb-1 line-clamp-2">${title}</h3>
+                <p class="text-sm text-green-400 line-clamp-3">${summary}</p>
+            `;
+            alertsContainer.appendChild(card);
+        });
+        
+    } catch (error) {
+        console.error('Error fetching alerts:', error);
+        alertsContainer.innerHTML = '<p class="text-red-400 text-center">Failed to load alerts.</p>';
+    }
+}
 
         document.addEventListener('DOMContentLoaded', () => {
             fetchNotes();
