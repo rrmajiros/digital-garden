@@ -1,7 +1,3 @@
-Here is a draft of a README for your project, "Digital Compost." It covers the purpose of the site, its features, and the technical setup.
-
------
-
 ## 🪴 Digital Compost
 
 ### Project Overview
