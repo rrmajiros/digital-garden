@@ -1,9 +1,9 @@
 const Parser = require('rss-parser');
 
-// Your two RSS feed URLs.
+// This code pulls the URLs from Vercel's environment variables
 const FEED_URLS = [
     process.env.VILLA_VIE_FEED,
-    // process.env.RESIDENTIAL_CRUISING_FEED // Commented out to test the first feed
+    process.env.RESIDENTIAL_CRUISING_FEED
 ];
 
 const parser = new Parser();
@@ -19,8 +19,21 @@ module.exports = async (req, res) => {
         }
 
         for (const url of FEED_URLS) {
-            const feed = await parser.parseURL(url);
-            allEntries.push(...feed.items);
+            try {
+                const feed = await parser.parseURL(url);
+                allEntries.push(...feed.items);
+            } catch (urlError) {
+                // Log a specific error for the URL that failed
+                console.error(`Error parsing or fetching URL: ${url}`, urlError);
+                // Continue to the next URL instead of crashing
+            }
+        }
+
+        // Check if we successfully fetched any entries at all
+        if (allEntries.length === 0) {
+            // This happens if both feeds failed
+            console.error('All feeds failed to load.');
+            return res.status(500).json({ error: 'All feeds failed to load.' });
         }
 
         allEntries.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
@@ -42,7 +55,7 @@ module.exports = async (req, res) => {
         res.status(200).send(combinedFeedXML);
 
     } catch (error) {
-        console.error('Error fetching RSS feed:', error);
+        console.error('Error in main try-catch block:', error);
         res.status(500).json({ error: 'Failed to fetch RSS feeds.' });
     }
 };
