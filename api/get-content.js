@@ -50,15 +50,20 @@ module.exports = async (req, res) => {
 
         // --- Fetch YouTube Videos ---
         const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY;
+        console.log(`Checking for API Key. Found: ${!!YOUTUBE_API_KEY}`);
+        
         const searchTerms = 'Villa Vie Residential Cruising';
         const youtubeSearchUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(searchTerms)}&type=video&maxResults=6&key=${YOUTUBE_API_KEY}`;
+        
+        console.log(`YouTube API URL: ${youtubeSearchUrl}`);
         
         if (YOUTUBE_API_KEY) {
             try {
                 const youtubeResponse = await axios.get(youtubeSearchUrl);
                 youtubeData.push(...youtubeResponse.data.items);
             } catch (youtubeError) {
-                console.error('Error fetching YouTube videos:', youtubeError.response?.data || youtubeError.message);
+                console.error('Error fetching YouTube videos:', youtubeError.response?.data?.error?.message || youtubeError.message);
+                console.error('Full error object:', youtubeError.toJSON());
             }
         } else {
             console.error('YouTube API key is not set.');
