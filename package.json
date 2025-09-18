@@ -2,7 +2,7 @@
   "name": "api",
   "version": "1.0.0",
   "description": "",
-  "main": "fetch-rss.js",
+  "main": "get-content.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -11,6 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "rss-parser": "^3.12.0",
+    "axios": "^1.6.0",
     "airtable": "^0.12.2"
   }
 }

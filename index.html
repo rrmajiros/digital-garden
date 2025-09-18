@@ -48,6 +48,7 @@
         </section>
 
         <div id="feeds-wrapper"></div>
+        <div id="youtube-wrapper"></div>
     </div>
     
     <footer class="w-full text-center mt-12 p-4 border-t border-gray-700">
@@ -75,6 +76,7 @@
     <script>
         const notesContainer = document.getElementById('notes-container');
         const feedsWrapper = document.getElementById('feeds-wrapper');
+        const youtubeWrapper = document.getElementById('youtube-wrapper');
         const modal = document.getElementById('fullscreen-modal');
         const modalTitle = document.getElementById('modal-title');
         const modalContent = document.getElementById('modal-content');
@@ -136,17 +138,19 @@
             }
         }
         
-        async function fetchGoogleAlerts() {
+        async function fetchFeeds() {
             try {
                 feedsWrapper.innerHTML = '';
-                const response = await fetch('/api/fetch-rss');
+                const response = await fetch('/api/get-content'); // Change to the new endpoint
                 
                 if (!response.ok) {
-                    feedsWrapper.innerHTML = '<p class="text-red-400 text-center">Failed to load alerts.</p>';
+                    feedsWrapper.innerHTML = '<p class="text-red-400 text-center">Failed to load feeds.</p>';
                     return;
                 }
 
-                const feedsData = await response.json();
+                const data = await response.json();
+                const feedsData = data.feeds;
+                const youtubeData = data.youtube;
 
                 if (feedsData.error) {
                     feedsWrapper.innerHTML = `<p class="text-red-400 text-center">Server Error: ${feedsData.error}</p>`;
@@ -200,15 +204,48 @@
                         containerDiv.appendChild(card);
                     });
                 });
+
+                // Render YouTube videos
+                if (youtubeData.length > 0) {
+                    const youtubeSection = document.createElement('section');
+                    youtubeSection.className = 'mb-12';
+
+                    youtubeSection.innerHTML = `
+                        <div class="text-center mb-6">
+                            <h2 class="text-2xl font-bold text-white mb-2">YouTube Videos</h2>
+                            <p class="text-gray-400">Related videos on YouTube.</p>
+                        </div>
+                        <div id="youtube-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+                    `;
+                    youtubeWrapper.appendChild(youtubeSection);
+                    const youtubeContainer = document.getElementById('youtube-container');
+
+                    youtubeData.forEach(video => {
+                        const videoCard = document.createElement('a');
+                        videoCard.href = `https://www.youtube.com/watch?v=${video.id.videoId}`;
+                        videoCard.target = "_blank";
+                        videoCard.className = 'p-4 bg-gray-800 rounded-lg shadow-md border border-gray-700 hover:bg-gray-700 transition-colors duration-200 cursor-pointer block';
+                        
+                        videoCard.innerHTML = `
+                            <img src="${video.snippet.thumbnails.high.url}" alt="${video.snippet.title}" class="w-full h-auto rounded-md mb-2">
+                            <h3 class="text-lg font-bold text-white mb-1 line-clamp-2">${video.snippet.title}</h3>
+                            <p class="text-sm text-gray-400 line-clamp-2">${video.snippet.channelTitle}</p>
+                        `;
+                        youtubeContainer.appendChild(videoCard);
+                    });
+                } else {
+                    youtubeWrapper.innerHTML = '<p class="text-center text-red-400">Failed to load YouTube videos or none found.</p>';
+                }
+
             } catch (error) {
-                console.error('Error fetching alerts:', error);
-                feedsWrapper.innerHTML = '<p class="text-red-400 text-center">Failed to load alerts.</p>';
+                console.error('Error fetching data:', error);
+                feedsWrapper.innerHTML = '<p class="text-red-400 text-center">Failed to load feeds.</p>';
             }
         }
         
         document.addEventListener('DOMContentLoaded', () => {
             fetchNotes();
-            fetchGoogleAlerts();
+            fetchFeeds();
         });
     </script>
 </body>
