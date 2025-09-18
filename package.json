@@ -1,11 +1,15 @@
 {
-  "name": "your-digital-garden",
+  "name": "api",
   "version": "1.0.0",
-  "private": true,
+  "description": "",
+  "main": "fetch-rss.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
   "dependencies": {
-    "airtable": "^0.12.2",
-    "striptags": "^3.2.0",
-    "marked": "^4.0.0",
-    "node-fetch": "^2.6.7"
+    "rss-parser": "^3.12.0"
   }
 }
