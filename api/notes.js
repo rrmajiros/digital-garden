@@ -4,43 +4,58 @@ const Airtable = require('airtable');
 const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(process.env.AIRTABLE_BASE_ID);
 
 function convertAirtableRichTextToHtml(richTextData) {
-    if (!richTextData || richTextData.length === 0) {
+    if (!richTextData) {
         return '';
     }
+    
+    // Check if the data is a simple string (e.g., from an old field type)
+    if (typeof richTextData === 'string') {
+        return richTextData.replace(/\n/g, '<br>');
+    }
 
-    let html = '';
-    richTextData.forEach(block => {
-        if (block.text) {
-            let text = block.text;
+    // Process the new rich text format (array of blocks)
+    if (Array.isArray(richTextData)) {
+        let html = '';
+        richTextData.forEach(block => {
+            if (block.text) {
+                let text = block.text;
 
-            // Apply bolding
-            if (block.attributes && block.attributes.bold) {
-                text = `<strong>${text}</strong>`;
+                // Apply styles based on attributes
+                if (block.attributes) {
+                    if (block.attributes.bold) {
+                        text = `<strong>${text}</strong>`;
+                    }
+                    if (block.attributes.italic) {
+                        text = `<em>${text}</em>`;
+                    }
+                    // Handle other styles like underline, strikethrough etc. if needed
+                }
+
+                html += text;
             }
 
-            // Apply italics
-            if (block.attributes && block.attributes.italic) {
-                text = `<em>${text}</em>`;
+            // Add a paragraph break after each paragraph block
+            if (block.type === 'richText.paragraph') {
+                html += '<br>';
             }
-
-            html += text;
-        }
-
-        // Handle new lines
-        if (block.type === 'richText.paragraph') {
-            html += '<br>';
-        }
-    });
-
-    return html;
+        });
+        return html;
+    }
+    
+    // Return an empty string if the format is not recognized
+    return '';
 }
 
 module.exports = async (req, res) => {
     try {
+        console.log('Attempting to fetch notes from Airtable...');
+        
         const records = await base('Notes').select({
             view: 'Grid view',
             fields: ['Title', 'Content']
         }).firstPage();
+
+        console.log(`Fetched ${records.length} records.`);
 
         const notes = records.map(record => {
             const richTextContent = record.get('Content');
@@ -53,6 +68,7 @@ module.exports = async (req, res) => {
             };
         });
 
+        console.log('Notes successfully processed. Sending to client.');
         res.status(200).json(notes);
     } catch (error) {
         console.error('Error in api/notes.js:', error);
