@@ -13,7 +13,6 @@ module.exports = async (req, res) => {
 
         if (!process.env.VILLA_VIE_FEED || !process.env.RESIDENTIAL_CRUISING_FEED) {
             console.error('Environment variables for feeds are not set.');
-            // Send an XML error response so the front-end can handle it gracefully
             res.setHeader('Content-Type', 'application/xml');
             res.status(200).send('<error>Feed URLs are not configured.</error>');
             return;
@@ -50,7 +49,9 @@ module.exports = async (req, res) => {
         
         combinedFeedXML += '</feed>';
 
-        // Add the Cache-Control headers here to prevent caching
+        // Log the final XML before sending it to the client
+        console.log('Final XML to be sent:', combinedFeedXML);
+
         res.setHeader('Content-Type', 'application/xml');
         res.setHeader('Cache-Control', 'no-store, max-age=0');
         res.status(200).send(combinedFeedXML);
