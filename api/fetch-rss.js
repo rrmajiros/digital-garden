@@ -28,11 +28,27 @@ module.exports = async (req, res) => {
         });
 
         const results = await Promise.all(fetchPromises);
-        results.forEach(result => {
-            if (result.items.length > 0) {
-                feedsData[result.key] = result.items;
-            }
+        
+        const villaVieItems = results.find(r => r.key === 'villaVie')?.items || [];
+        const residentialCruisingItems = results.find(r => r.key === 'residentialCruising')?.items || [];
+
+        // Create a set of existing Villa Vie links to prevent duplicates
+        const villaVieLinks = new Set(villaVieItems.map(item => item.link));
+
+        // Filter Residential Cruising items for Villa Vie content
+        const filteredCruisingItems = residentialCruisingItems.filter(item => {
+            const isRelevant = (item.title && item.title.includes('Villa Vie')) || 
+                                (item.contentSnippet && item.contentSnippet.includes('Villa Vie'));
+            const isDuplicate = villaVieLinks.has(item.link);
+            return isRelevant && !isDuplicate;
         });
+
+        // Combine and sort the Villa Vie items
+        const combinedVillaVieItems = [...villaVieItems, ...filteredCruisingItems];
+        combinedVillaVieItems.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+
+        feedsData.villaVie = combinedVillaVieItems;
+        feedsData.residentialCruising = residentialCruisingItems;
 
         if (Object.keys(feedsData).length === 0) {
             console.error('All feeds failed to load.');
