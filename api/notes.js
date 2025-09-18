@@ -1,8 +1,4 @@
 const Airtable = require('airtable');
-const { marked } = require('marked');
-
-// This line will test if the 'marked' library is loaded
-console.log('Is marked loaded?', !!marked);
 
 const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(process.env.AIRTABLE_BASE_ID);
 
@@ -14,10 +10,7 @@ module.exports = async (req, res) => {
         }).firstPage();
 
         const notes = records.map(record => {
-            let content = record.get('Content');
-            if (content) {
-                content = marked.parse(content);
-            }
+            const content = record.get('Content');
             return {
                 id: record.id,
                 title: record.get('Title'),
