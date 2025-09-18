@@ -14,6 +14,9 @@ module.exports = async (req, res) => {
         const notes = records.map(record => {
             let content = record.get('Content');
             if (content) {
+                // Ensure line breaks are formatted correctly for Markdown
+                content = content.replace(/\n/g, '\n\n');
+                
                 // Convert the Markdown content to HTML
                 content = marked.parse(content);
             }
