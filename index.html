@@ -149,14 +149,19 @@
     try {
         alertsContainer.innerHTML = '';
         const response = await fetch('/api/fetch-rss');
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
+        
         const feedText = await response.text();
         
         const parser = new DOMParser();
         const xmlDoc = parser.parseFromString(feedText, 'application/xml');
-        
+
+        const serverError = xmlDoc.querySelector('error');
+        if (serverError) {
+            console.error('Server-side error:', serverError.textContent);
+            alertsContainer.innerHTML = `<p class="text-red-400 text-center">Server Error: ${serverError.textContent}</p>`;
+            return;
+        }
+
         const entries = xmlDoc.querySelectorAll('entry');
         
         if (entries.length === 0) {
@@ -164,13 +169,13 @@
             return;
         }
 
-        // Exclude terms in a case-insensitive way
         const excludedTerm = "villa vie odyssee";
         const filteredEntries = Array.from(entries).filter(entry => {
-            const title = entry.querySelector('title').textContent.toLowerCase();
-            const summary = (entry.querySelector('summary') || entry.querySelector('description') || entry.querySelector('content')).textContent.toLowerCase();
+            // Safely get the title and summary, defaulting to an empty string if they don't exist.
+            const title = entry.querySelector('title')?.textContent || '';
+            const summary = (entry.querySelector('summary') || entry.querySelector('description') || entry.querySelector('content'))?.textContent || '';
             
-            return !title.includes(excludedTerm) && !summary.includes(excludedTerm);
+            return !title.toLowerCase().includes(excludedTerm) && !summary.toLowerCase().includes(excludedTerm);
         });
 
         if (filteredEntries.length === 0) {
