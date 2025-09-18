@@ -169,14 +169,8 @@
             return;
         }
 
-        const excludedTerm = "villa vie odyssee";
-        const filteredEntries = Array.from(entries).filter(entry => {
-            // Safely get the title and summary, defaulting to an empty string if they don't exist.
-            const title = entry.querySelector('title')?.textContent || '';
-            const summary = (entry.querySelector('summary') || entry.querySelector('description') || entry.querySelector('content'))?.textContent || '';
-            
-            return !title.toLowerCase().includes(excludedTerm) && !summary.toLowerCase().includes(excludedTerm);
-        });
+        // TEMPORARILY DISABLED FILTERING TO TEST FEEDS
+        const filteredEntries = Array.from(entries);
 
         if (filteredEntries.length === 0) {
             alertsContainer.innerHTML = '<p class="text-center text-green-400">No alerts found after filtering.</p>';
@@ -209,7 +203,6 @@
         alertsContainer.innerHTML = '<p class="text-red-400 text-center">Failed to load alerts.</p>';
     }
 }
-
         document.addEventListener('DOMContentLoaded', () => {
             fetchNotes();
             fetchGoogleAlerts();
