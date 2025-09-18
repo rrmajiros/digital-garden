@@ -1,32 +1,26 @@
-
 const Airtable = require('airtable');
 
+// Make sure your Airtable credentials are set up as environment variables
 const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(process.env.AIRTABLE_BASE_ID);
 
 module.exports = async (req, res) => {
     try {
         const records = await base('Notes').select({
-            // This is the new line to filter records
-            filterByFormula: '{Status} = "Published"',
-            view: 'Grid view'
+            view: 'Grid view',
+            fields: ['Title', 'Content'] // Make sure 'Content' is the name of your rich text field
         }).firstPage();
 
-        const formattedRecords = records.map(record => {
+        const notes = records.map(record => {
             return {
                 id: record.id,
-                title: record.get('Title') || 'No Title',
-                content: record.get('Content') || 'No content available.',
-                tags: record.get('Tags') || [],
-                created: record.get('Created')
+                title: record.get('Title'),
+                content: record.get('Content') // This gets the rich text content
             };
         });
 
-        res.statusCode = 200;
-        res.setHeader('Content-Type', 'application/json');
-        res.json(formattedRecords);
+        res.status(200).json(notes);
     } catch (error) {
-        console.error('Airtable API error:', error);
-        res.statusCode = 500;
-        res.json({ error: 'Failed to fetch notes from Airtable.' });
+        console.error('Error fetching notes:', error);
+        res.status(500).json({ error: 'Failed to fetch notes.' });
     }
 };
