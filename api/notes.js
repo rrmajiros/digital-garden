@@ -1,11 +1,13 @@
+
 const Airtable = require('airtable');
 
-// Make sure your environment variables are set correctly in Vercel
 const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(process.env.AIRTABLE_BASE_ID);
 
 module.exports = async (req, res) => {
     try {
         const records = await base('Notes').select({
+            // This is the new line to filter records
+            filterByFormula: '{Status} = "Published"',
             view: 'Grid view'
         }).firstPage();
 
