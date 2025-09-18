@@ -1,4 +1,3 @@
-
 const Airtable = require('airtable');
 
 const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(process.env.AIRTABLE_BASE_ID);
@@ -6,27 +5,22 @@ const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(process
 module.exports = async (req, res) => {
     try {
         const records = await base('Notes').select({
-            // This is the new line to filter records
-            filterByFormula: '{Status} = "Published"',
-            view: 'Grid view'
+            view: 'Grid view',
+            fields: ['Title', 'Content']
         }).firstPage();
 
-        const formattedRecords = records.map(record => {
+        const notes = records.map(record => {
+            const content = record.get('Content');
             return {
                 id: record.id,
-                title: record.get('Title') || 'No Title',
-                content: record.get('Content') || 'No content available.',
-                tags: record.get('Tags') || [],
-                created: record.get('Created')
+                title: record.get('Title'),
+                content: content
             };
         });
 
-        res.statusCode = 200;
-        res.setHeader('Content-Type', 'application/json');
-        res.json(formattedRecords);
+        res.status(200).json(notes);
     } catch (error) {
-        console.error('Airtable API error:', error);
-        res.statusCode = 500;
-        res.json({ error: 'Failed to fetch notes from Airtable.' });
+        console.error('Error in api/notes.js:', error);
+        res.status(500).json({ error: 'Failed to fetch notes.' });
     }
 };

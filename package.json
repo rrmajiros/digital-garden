@@ -12,6 +12,7 @@
   "dependencies": {
     "rss-parser": "^3.12.0",
     "axios": "^1.6.0",
-    "airtable": "^0.12.2"
+    "airtable": "^0.12.2",
+    "marked": "^12.0.0"
   }
 }
