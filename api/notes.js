@@ -1,4 +1,5 @@
 const Airtable = require('airtable');
+const { marked } = require('marked');
 
 // Make sure your Airtable credentials are set up as environment variables
 const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(process.env.AIRTABLE_BASE_ID);
@@ -7,14 +8,14 @@ module.exports = async (req, res) => {
     try {
         const records = await base('Notes').select({
             view: 'Grid view',
-            fields: ['Title', 'Content'] // Make sure 'Content' is the name of your rich text field
+            fields: ['Title', 'Content']
         }).firstPage();
 
         const notes = records.map(record => {
             let content = record.get('Content');
             if (content) {
-                // Convert line breaks from the Airtable output to <br> tags
-                content = content.replace(/\n/g, '<br>');
+                // Convert the Markdown content to HTML
+                content = marked.parse(content);
             }
 
             return {
