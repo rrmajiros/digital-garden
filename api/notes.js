@@ -8,19 +8,15 @@ module.exports = async (req, res) => {
     try {
         const records = await base('Notes').select({
             view: 'Grid view',
-            fields: ['Title', 'Content']
+            fields: ['Title', 'Content'],
+            cellFormat: 'markdown' // This is the key fix
         }).firstPage();
 
         const notes = records.map(record => {
             let content = record.get('Content');
             if (content) {
-                // Ensure line breaks are formatted correctly for Markdown
-                content = content.replace(/\n/g, '\n\n');
-                
-                // Convert the Markdown content to HTML
                 content = marked.parse(content);
             }
-
             return {
                 id: record.id,
                 title: record.get('Title'),
