@@ -1,198 +1,278 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='90' font-size='90'>🪴</text></svg>">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Digital Compost</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-        .line-clamp-3 {
-            overflow: hidden;
-            display: -webkit-box;
-            -webkit-box-orient: vertical;
-            -webkit-line-clamp: 3;
-            text-overflow: ellipsis;
-        }
-        .line-clamp-2 {
-            overflow: hidden;
-            display: -webkit-box;
-            -webkit-box-orient: vertical;
-            -webkit-line-clamp: 2;
-            text-overflow: ellipsis;
-        }
-        #fullscreen-modal {
-            z-index: 50;
-        }
-    </style>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='90' font-size='90'>🪴</text></svg>">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Compost</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .line-clamp-3 {
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 3;
+            text-overflow: ellipsis;
+        }
+        .line-clamp-2 {
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+            text-overflow: ellipsis;
+        }
+        #fullscreen-modal {
+            z-index: 50;
+        }
+    </style>
 </head>
 <body class="bg-gray-900 text-gray-200 min-h-screen p-4 flex flex-col items-center">
 
-    <div class="max-w-6xl w-full mx-auto my-10 p-8 md:p-12 rounded-2xl shadow-xl border border-gray-700">
-        <header class="text-center mb-10">
-            <h1 class="text-3xl sm:text-4xl font-extrabold text-white mb-2">Digital Compost</h1>
-            <p class="text-gray-400 max-w-2xl mx-auto">A place for ideas to break down and become fertile.</p>
-        </header>
-        
-        <section class="mb-12">
-            <div class="text-center mb-6">
-                <h2 class="text-2xl font-bold text-white mb-2">Notes & Articles</h2>
-                <p class="text-gray-400">Thoughts and ideas on various topics.</p>
-            </div>
-            <div class="w-full">
-                <div id="notes-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                </div>
-            </div>
-        </section>
+    <div class="max-w-6xl w-full mx-auto my-10 p-8 md:p-12 rounded-2xl shadow-xl border border-gray-700">
+        <header class="text-center mb-10">
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-white mb-2">Digital Compost</h1>
+            <p class="text-gray-400 max-w-2xl mx-auto">A place for ideas to break down and become fertile.</p>
+        </header>
+        
+        <section class="mb-12">
+            <div class="text-center mb-6">
+                <h2 class="text-2xl font-bold text-white mb-2">Notes & Articles</h2>
+                <p class="text-gray-400">Thoughts and ideas on various topics.</p>
+            </div>
+            <div class="w-full">
+                <div id="notes-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                </div>
+            </div>
+        </section>
 
-        <div id="feeds-wrapper"></div>
-        <div id="youtube-wrapper"></div>
-    </div>
-    
-    <footer class="w-full text-center mt-12 p-4 border-t border-gray-700">
-        <p class="text-sm text-gray-500">
-            &copy; 2025 Digital Compost. All rights reserved.
-        </p>
-        <p class="text-sm text-gray-500 mt-1">
-            <a href="https://airtable.com/apphdYcfXWC3ryCTK/pagzFlotY1WrGQkcH" target="_blank" class="hover:text-blue-500 transition-colors">
-                Add Fertilizer
-            </a>
-        </p>
-    </footer>
+        <div id="feeds-wrapper"></div>
+        <div id="youtube-wrapper"></div>
+    </div>
+    
+    <footer class="w-full text-center mt-12 p-4 border-t border-gray-700">
+        <p class="text-sm text-gray-500">
+            &copy; 2025 Digital Compost. All rights reserved.
+        </p>
+        <p class="text-sm text-gray-500 mt-1">
+            <a href="https://airtable.com/apphdYcfXWC3ryCTK/pagzFlotY1WrGQkcH" target="_blank" class="hover:text-blue-500 transition-colors">
+                Add Fertilizer
+            </a>
+        </p>
+    </footer>
 
-    <div id="fullscreen-modal" class="fixed inset-0 bg-gray-950 bg-opacity-90 backdrop-blur-sm flex justify-center items-center p-4 md:p-10 hidden">
-        <div class="relative w-full h-full max-w-4xl max-h-[90vh] bg-gray-800 rounded-lg shadow-2xl p-6 md:p-10 overflow-y-auto">
-            <button id="modal-close" class="absolute top-4 right-4 text-white text-2xl hover:text-gray-400 transition-colors">
-                &times;
-            </button>
-            <h2 id="modal-title" class="text-3xl font-bold text-white mb-4"></h2>
-            <div id="modal-content" class="prose prose-invert max-w-none text-gray-200"></div>
-        </div>
-    </div>
+    <div id="fullscreen-modal" class="fixed inset-0 bg-gray-950 bg-opacity-90 backdrop-blur-sm flex justify-center items-center p-4 md:p-10 hidden">
+        <div class="relative w-full h-full max-w-4xl max-h-[90vh] bg-gray-800 rounded-lg shadow-2xl p-6 md:p-10 overflow-y-auto">
+            <button id="modal-close" class="absolute top-4 right-4 text-white text-2xl hover:text-gray-400 transition-colors">
+                &times;
+            </button>
+            <h2 id="modal-title" class="text-3xl font-bold text-white mb-4"></h2>
+            <div id="modal-content" class="prose prose-invert max-w-none text-gray-200"></div>
+        </div>
+    </div>
 
-    <script>
-        const notesContainer = document.getElementById('notes-container');
-        const feedsWrapper = document.getElementById('feeds-wrapper');
-        const youtubeWrapper = document.getElementById('youtube-wrapper');
-        const modal = document.getElementById('fullscreen-modal');
-        const modalTitle = document.getElementById('modal-title');
-        const modalContent = document.getElementById('modal-content');
-        const modalClose = document.getElementById('modal-close');
+    <script type="module">
+        const notesContainer = document.getElementById('notes-container');
+        const feedsWrapper = document.getElementById('feeds-wrapper');
+        const youtubeWrapper = document.getElementById('youtube-wrapper');
+        const modal = document.getElementById('fullscreen-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalContent = document.getElementById('modal-content');
+        const modalClose = document.getElementById('modal-close');
 
-        function parseAirtableText(text) {
-            if (!text) return '';
+        function parseAirtableText(text) {
+            if (!text) return '';
 
-            let html = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-            
-            html = html.replace(/^(#+)\s*(.*)/gm, (match, p1, p2) => {
-                const level = p1.length;
-                return `<h${level}>${p2}</h${level}>`;
-            });
-            
-            html = html.replace(/\n/g, '<br>');
+            let html = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            
+            html = html.replace(/^(#+)\s*(.*)/gm, (match, p1, p2) => {
+                const level = p1.length;
+                return `<h${level}>${p2}</h${level}>`;
+            });
+            
+            html = html.replace(/\n/g, '<br>');
 
-            // New regex to convert [text](url) to an anchor tag
-            html = html.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" class="text-blue-400 hover:underline break-words">$1</a>');
-            
-            html = html.replace(/<https?:\/\/[^\s>]+>/g, (url) => {
-                const cleanedUrl = url.substring(1, url.length - 1);
-                return `<a href="${cleanedUrl}" target="_blank" class="text-blue-400 hover:underline break-words">${cleanedUrl}</a>`;
-            });
-            
-            return html;
-        }
+            // New regex to convert [text](url) to an anchor tag
+            html = html.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" class="text-blue-400 hover:underline break-words">$1</a>');
+            
+            html = html.replace(/<https?:\/\/[^\s>]+>/g, (url) => {
+                const cleanedUrl = url.substring(1, url.length - 1);
+                return `<a href="${cleanedUrl}" target="_blank" class="text-blue-400 hover:underline break-words">${cleanedUrl}</a>`;
+            });
+            
+            return html;
+        }
 
-        function showNoteModal(note) {
-            // Correctly access properties directly from the note object
-            modalTitle.textContent = note.title;
-            modalContent.innerHTML = parseAirtableText(note.content || '');
-            modal.classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-        }
+        function showNoteModal(note) {
+            // Correctly access properties directly from the note object
+            modalTitle.textContent = note.title;
+            modalContent.innerHTML = parseAirtableText(note.content || '');
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
 
-        function hideNoteModal() {
-            modal.classList.add('hidden');
-            document.body.style.overflow = 'auto';
-        }
+        function hideNoteModal() {
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
 
-        modalClose.addEventListener('click', hideNoteModal);
-        modal.addEventListener('click', (e) => {
-            if (e.target.id === 'fullscreen-modal') {
-                hideNoteModal();
-            }
-        });
+        modalClose.addEventListener('click', hideNoteModal);
+        modal.addEventListener('click', (e) => {
+            if (e.target.id === 'fullscreen-modal') {
+                hideNoteModal();
+            }
+        });
 
-        async function fetchNotes() {
-            try {
-                notesContainer.innerHTML = '';
-                const response = await fetch('/api/notes');
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                const allNotes = await response.json();
-                
-                // Filter notes by checking the Status property directly
-                const notes = allNotes.filter(note => note.status === 'Published');
+        async function fetchNotes() {
+            try {
+                notesContainer.innerHTML = '';
+                const response = await fetch('/api/notes');
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const allNotes = await response.json();
+                
+                // Filter notes by checking the Status property directly
+                const notes = allNotes.filter(note => note.status === 'Published');
 
-                if (notes.length === 0) {
-                    notesContainer.innerHTML = '<p class="text-center text-green-400">No notes found.</p>';
-                    return;
-                }
+                if (notes.length === 0) {
+                    notesContainer.innerHTML = '<p class="text-center text-green-400">No notes found.</p>';
+                    return;
+                }
 
-                notes.forEach(note => {
-                    const noteCard = document.createElement('div');
-                    noteCard.className = 'p-6 bg-gray-800 rounded-lg shadow-md border border-gray-700 hover:bg-gray-700 transition-colors duration-200 cursor-pointer';
+                notes.forEach(note => {
+                    const noteCard = document.createElement('div');
+                    noteCard.className = 'p-6 bg-gray-800 rounded-lg shadow-md border border-gray-700 hover:bg-gray-700 transition-colors duration-200 cursor-pointer';
 
-                    const htmlSnippet = parseAirtableText(note.content || '');
+                    const htmlSnippet = parseAirtableText(note.content || '');
 
-                    noteCard.innerHTML = `
-                        <h3 class="text-xl font-bold text-white mb-2">${note.title}</h3>
-                        <div class="prose prose-invert max-w-none text-green-400 line-clamp-3">
-                            ${htmlSnippet}
-                        </div>
-                    `;
+                    noteCard.innerHTML = `
+                        <h3 class="text-xl font-bold text-white mb-2">${note.title}</h3>
+                        <div class="prose prose-invert max-w-none text-green-400 line-clamp-3">
+                            ${htmlSnippet}
+                        </div>
+                    `;
 
-                    noteCard.addEventListener('click', () => showNoteModal(note));
-                    notesContainer.appendChild(noteCard);
-                });
+                    noteCard.addEventListener('click', () => showNoteModal(note));
+                    notesContainer.appendChild(noteCard);
+                });
 
-            } catch (error) {
-                console.error('Error fetching notes:', error);
-                notesContainer.innerHTML = '<p class="text-red-400 text-center">Failed to load notes. Please try again later.</p>';
-            }
-        }
-        
-        async function fetchFeeds() {
-            try {
-                feedsWrapper.innerHTML = '';
-                const response = await fetch('/api/get-content');
-                
-                if (!response.ok) {
-                    feedsWrapper.innerHTML = '<p class="text-red-400 text-center">Failed to load feeds.</p>';
-                    return;
-                }
+            } catch (error) {
+                console.error('Error fetching notes:', error);
+                notesContainer.innerHTML = '<p class="text-red-400 text-center">Failed to load notes. Please try again later.</p>';
+            }
+        }
+        
+        async function fetchFeeds() {
+            try {
+                feedsWrapper.innerHTML = '';
+                const response = await fetch('/api/get-content');
+                
+                if (!response.ok) {
+                    feedsWrapper.innerHTML = '<p class="text-red-400 text-center">Failed to load feeds.</p>';
+                    return;
+                }
 
-                const data = await response.json();
-                const feedsData = data.feeds;
-                const youtubeData = data.youtube;
+                const data = await response.json();
+                const feedsData = data.feeds;
+                const youtubeData = data.youtube;
 
-                if (feedsData.error) {
-                    feedsWrapper.innerHTML = `<p class="text-red-400 text-center">Server Error: ${feedsData.error}</p>`;
-                    return;
-                }
-                
-                const orderedFeedKeys = ['villaVie', 'residentialCruising'];
+                if (feedsData.error) {
+                    feedsWrapper.innerHTML = `<p class="text-red-400 text-center">Server Error: ${feedsData.error}</p>`;
+                    return;
+                }
+                
+                const orderedFeedKeys = ['villaVie', 'residentialCruising'];
 
-                orderedFeedKeys.forEach(feedKey => {
-                    const feedItems = feedsData[feedKey];
-                    if (!feedItems) return;
-                    
-                    const feedTitle = feedKey === 'villaVie' ? 'Villa Vie Odyssey' : 'Residential Cruising and Related';
-                    
-                    const feedSection = document.createElement('section');
-                    feedSection.className = 'mb-12';
-                    
-                    const containerDiv = document
+                orderedFeedKeys.forEach(feedKey => {
+                    const feedItems = feedsData[feedKey];
+                    if (!feedItems) return;
+                    
+                    const feedTitle = feedKey === 'villaVie' ? 'Villa Vie Odyssey' : 'Residential Cruising and Related';
+                    
+                    const feedSection = document.createElement('section');
+                    feedSection.className = 'mb-12';
+                    
+                    const containerDiv = document.createElement('div');
+                    containerDiv.id = `${feedKey}-container`;
+                    containerDiv.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6';
+
+                    feedSection.innerHTML = `
+                        <div class="text-center mb-6">
+                            <h2 class="text-2xl font-bold text-white mb-2">${feedTitle}</h2>
+                            <p class="text-gray-400">Latest news from the world wide web.</p>
+                        </div>
+                    `;
+                    
+                    feedSection.appendChild(containerDiv);
+                    feedsWrapper.appendChild(feedSection);
+
+                    if (feedItems.length === 0) {
+                        containerDiv.innerHTML = '<p class="text-center text-green-400 col-span-full">No alerts found.</p>';
+                        return;
+                    }
+
+                    feedItems.forEach(entry => {
+                        const title = entry.title || 'No Title';
+                        const link = entry.link || '#';
+                        const summary = entry.contentSnippet || entry.summary || 'No summary available.';
+                        
+                        const card = document.createElement('a');
+                        card.href = link;
+                        card.target = "_blank";
+                        card.className = 'p-6 bg-gray-800 rounded-lg shadow-md border border-gray-700 hover:bg-gray-700 transition-colors duration-200 cursor-pointer block';
+                        
+                        card.innerHTML = `
+                            <h3 class="text-lg font-bold text-white mb-1 line-clamp-2">${title}</h3>
+                            <p class="text-sm text-green-400 line-clamp-3">${summary}</p>
+                        `;
+                        containerDiv.appendChild(card);
+                    });
+                });
+
+                if (youtubeData.length > 0) {
+                    const youtubeSection = document.createElement('section');
+                    youtubeSection.className = 'mb-12';
+
+                    youtubeSection.innerHTML = `
+                        <div class="text-center mb-6">
+                            <h2 class="text-2xl font-bold text-white mb-2">Villa Vie YouTube Videos</h2>
+                            <p class="text-gray-400">Related videos on YouTube.</p>
+                        </div>
+                        <div id="youtube-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+                    `;
+                    youtubeWrapper.appendChild(youtubeSection);
+                    const youtubeContainer = document.getElementById('youtube-container');
+
+                    youtubeData.forEach(video => {
+                        const videoCard = document.createElement('a');
+                        videoCard.href = `https://www.youtube.com/watch?v=${video.id.videoId}`;
+                        videoCard.target = "_blank";
+                        videoCard.className = 'p-4 bg-gray-800 rounded-lg shadow-md border border-gray-700 hover:bg-gray-700 transition-colors duration-200 cursor-pointer block';
+                        
+                        videoCard.innerHTML = `
+                            <img src="${video.snippet.thumbnails.high.url}" alt="${video.snippet.title}" class="w-full h-auto rounded-md mb-2">
+                            <h3 class="text-lg font-bold text-white mb-1 line-clamp-2">${video.snippet.title}</h3>
+                            <p class="text-sm text-gray-400 line-clamp-2">${video.snippet.channelTitle}</p>
+                        `;
+                        youtubeContainer.appendChild(videoCard);
+                    });
+                } else {
+                    youtubeWrapper.innerHTML = '<p class="text-center text-red-400">Failed to load YouTube videos or none found.</p>';
+                }
+
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                feedsWrapper.innerHTML = '<p class="text-red-400 text-center">Failed to load feeds.</p>';
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchNotes();
+            fetchFeeds();
+        });
+    </script>
+</body>
+</html>
