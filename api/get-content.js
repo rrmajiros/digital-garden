@@ -11,7 +11,7 @@ const parser = new Parser();
 module.exports = async (req, res) => {
     try {
         const feedsData = {};
-        let youtubeData = []; // Changed from const to let
+        let youtubeData = [];
 
         // --- Fetch RSS Feeds ---
         const fetchPromises = Object.keys(FEED_URLS).map(async (key) => {
@@ -22,7 +22,7 @@ module.exports = async (req, res) => {
             }
             try {
                 const feed = await parser.parseURL(url);
-                console.log(`Fetched ${feed.items.length} items from ${key}`); // Added logging
+                console.log(`Fetched ${feed.items.length} items from ${key}`);
                 return { key, items: feed.items };
             } catch (urlError) {
                 console.error(`Error parsing or fetching URL for key: ${key}`, urlError);
@@ -72,4 +72,7 @@ module.exports = async (req, res) => {
         res.status(200).json({ feeds: feedsData, youtube: youtubeData });
 
     } catch (error) {
-        console.error('Error in main
+        console.error('Error in main try-catch block:', error);
+        res.status(500).json({ error: 'Failed to get content due to a server error.' });
+    }
+};
