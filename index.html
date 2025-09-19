@@ -130,8 +130,8 @@
                 }
                 const allNotes = await response.json();
 
-                // Filter notes to show only published ones
-                const notes = allNotes.filter(note => note.published);
+                // Filter notes to show only those with a Status of 'Published'
+                const notes = allNotes.filter(note => note.Status === 'Published');
 
                 if (notes.length === 0) {
                     notesContainer.innerHTML = '<p class="text-center text-green-400">No notes found.</p>';
