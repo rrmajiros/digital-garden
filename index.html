@@ -103,8 +103,9 @@
         }
 
         function showNoteModal(note) {
-            modalTitle.textContent = note.fields.title;
-            modalContent.innerHTML = parseAirtableText(note.fields.content || '');
+            // Correctly access properties directly from the note object
+            modalTitle.textContent = note.title;
+            modalContent.innerHTML = parseAirtableText(note.content || '');
             modal.classList.remove('hidden');
             document.body.style.overflow = 'hidden';
         }
@@ -128,10 +129,10 @@
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
-                const data = await response.json();
+                const allNotes = await response.json();
                 
-                // Filter notes by checking the Status field
-                const notes = data.records.filter(note => note.fields.Status === 'Published');
+                // Filter notes by checking the Status property directly
+                const notes = allNotes.filter(note => note.status === 'Published');
 
                 if (notes.length === 0) {
                     notesContainer.innerHTML = '<p class="text-center text-green-400">No notes found.</p>';
@@ -142,10 +143,10 @@
                     const noteCard = document.createElement('div');
                     noteCard.className = 'p-6 bg-gray-800 rounded-lg shadow-md border border-gray-700 hover:bg-gray-700 transition-colors duration-200 cursor-pointer';
 
-                    const htmlSnippet = parseAirtableText(note.fields.content || '');
+                    const htmlSnippet = parseAirtableText(note.content || '');
 
                     noteCard.innerHTML = `
-                        <h3 class="text-xl font-bold text-white mb-2">${note.fields.title}</h3>
+                        <h3 class="text-xl font-bold text-white mb-2">${note.title}</h3>
                         <div class="prose prose-invert max-w-none text-green-400 line-clamp-3">
                             ${htmlSnippet}
                         </div>
@@ -199,3 +200,76 @@
                         <div class="text-center mb-6">
                             <h2 class="text-2xl font-bold text-white mb-2">${feedTitle}</h2>
                             <p class="text-gray-400">Latest news from the world wide web.</p>
+                        </div>
+                    `;
+                    
+                    feedSection.appendChild(containerDiv);
+                    feedsWrapper.appendChild(feedSection);
+
+                    if (feedItems.length === 0) {
+                        containerDiv.innerHTML = '<p class="text-center text-green-400 col-span-full">No alerts found.</p>';
+                        return;
+                    }
+
+                    feedItems.forEach(entry => {
+                        const title = entry.title || 'No Title';
+                        const link = entry.link || '#';
+                        const summary = entry.contentSnippet || entry.summary || 'No summary available.';
+                        
+                        const card = document.createElement('a');
+                        card.href = link;
+                        card.target = "_blank";
+                        card.className = 'p-6 bg-gray-800 rounded-lg shadow-md border border-gray-700 hover:bg-gray-700 transition-colors duration-200 cursor-pointer block';
+                        
+                        card.innerHTML = `
+                            <h3 class="text-lg font-bold text-white mb-1 line-clamp-2">${title}</h3>
+                            <p class="text-sm text-green-400 line-clamp-3">${summary}</p>
+                        `;
+                        containerDiv.appendChild(card);
+                    });
+                });
+
+                if (youtubeData.length > 0) {
+                    const youtubeSection = document.createElement('section');
+                    youtubeSection.className = 'mb-12';
+
+                    youtubeSection.innerHTML = `
+                        <div class="text-center mb-6">
+                            <h2 class="text-2xl font-bold text-white mb-2">Villa Vie YouTube Videos</h2>
+                            <p class="text-gray-400">Related videos on YouTube.</p>
+                        </div>
+                        <div id="youtube-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+                    `;
+                    youtubeWrapper.appendChild(youtubeSection);
+                    const youtubeContainer = document.getElementById('youtube-container');
+
+                    youtubeData.forEach(video => {
+                        const videoCard = document.createElement('a');
+                        videoCard.href = `https://www.youtube.com/watch?v=${video.id.videoId}`;
+                        videoCard.target = "_blank";
+                        videoCard.className = 'p-4 bg-gray-800 rounded-lg shadow-md border border-gray-700 hover:bg-gray-700 transition-colors duration-200 cursor-pointer block';
+                        
+                        videoCard.innerHTML = `
+                            <img src="${video.snippet.thumbnails.high.url}" alt="${video.snippet.title}" class="w-full h-auto rounded-md mb-2">
+                            <h3 class="text-lg font-bold text-white mb-1 line-clamp-2">${video.snippet.title}</h3>
+                            <p class="text-sm text-gray-400 line-clamp-2">${video.snippet.channelTitle}</p>
+                        `;
+                        youtubeContainer.appendChild(videoCard);
+                    });
+                } else {
+                    youtubeWrapper.innerHTML = '<p class="text-center text-red-400">Failed to load YouTube videos or none found.</p>';
+                }
+
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                feedsWrapper.innerHTML = '<p class="text-red-400 text-center">Failed to load feeds.</p>';
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchNotes();
+            fetchFeeds();
+        });
+    </script>
+</body>
+</html>
