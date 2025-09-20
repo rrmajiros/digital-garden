@@ -33,7 +33,7 @@
 
     <div class="max-w-6xl w-full mx-auto my-10 p-8 md:p-12 rounded-2xl shadow-xl border border-gray-700">
         <header class="text-center mb-10">
-            <h1 class="text-3xl sm:text-4xl font-extrabold text-white mb-2">Digital Compost</h1>
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-white mb-2">🌱Digital Compost🌱</h1>
             <p class="text-gray-400 max-w-2xl mx-auto">A place for ideas to break down and become fertile.</p>
         </header>
         
@@ -94,8 +94,10 @@
             
             html = html.replace(/\n/g, '<br>');
 
+            // Regex to convert [text](url) to an anchor tag
             html = html.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" class="text-blue-400 hover:underline break-words">$1</a>');
             
+            // Existing regex for bare URLs (make sure it runs *after* Markdown links)
             html = html.replace(/<https?:\/\/[^\s>]+>/g, (url) => {
                 const cleanedUrl = url.substring(1, url.length - 1);
                 return `<a href="${cleanedUrl}" target="_blank" class="text-blue-400 hover:underline break-words">${cleanedUrl}</a>`;
@@ -181,4 +183,95 @@
                     return;
                 }
                 
-                const orderedFeedKeys = ['
+                const orderedFeedKeys = ['villaVie', 'residentialCruising'];
+
+                orderedFeedKeys.forEach(feedKey => {
+                    const feedItems = feedsData[feedKey];
+                    if (!feedItems) return;
+                    
+                    const feedTitle = feedKey === 'villaVie' ? 'Villa Vie Odyssey' : 'Residential Cruising and Related';
+                    
+                    const feedSection = document.createElement('section');
+                    feedSection.className = 'mb-12';
+                    
+                    const containerDiv = document.createElement('div');
+                    containerDiv.id = `${feedKey}-container`;
+                    containerDiv.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6';
+
+                    feedSection.innerHTML = `
+                        <div class="text-center mb-6">
+                            <h2 class="text-2xl font-bold text-white mb-2">${feedTitle}</h2>
+                            <p class="text-gray-400">Latest news from the world wide web.</p>
+                        </div>
+                    `;
+                    
+                    feedSection.appendChild(containerDiv);
+                    feedsWrapper.appendChild(feedSection);
+
+                    if (feedItems.length === 0) {
+                        containerDiv.innerHTML = '<p class="text-center text-green-400 col-span-full">No alerts found.</p>';
+                        return;
+                    }
+
+                    feedItems.forEach(entry => {
+                        const title = entry.title || 'No Title';
+                        const link = entry.link || '#';
+                        const summary = entry.contentSnippet || entry.summary || 'No summary available.';
+                        
+                        const card = document.createElement('a');
+                        card.href = link;
+                        card.target = "_blank";
+                        card.className = 'p-6 bg-gray-800 rounded-lg shadow-md border border-gray-700 hover:bg-gray-700 transition-colors duration-200 cursor-pointer block';
+                        
+                        card.innerHTML = `
+                            <h3 class="text-lg font-bold text-white mb-1 line-clamp-2">${title}</h3>
+                            <p class="text-sm text-green-400 line-clamp-3">${summary}</p>
+                        `;
+                        containerDiv.appendChild(card);
+                    });
+                });
+
+                if (youtubeData && youtubeData.length > 0) {
+                    const youtubeSection = document.createElement('section');
+                    youtubeSection.className = 'mb-12';
+
+                    youtubeSection.innerHTML = `
+                        <div class="text-center mb-6">
+                            <h2 class="text-2xl font-bold text-white mb-2">Villa Vie YouTube Videos</h2>
+                            <p class="text-gray-400">Related videos on YouTube.</p>
+                        </div>
+                        <div id="youtube-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+                    `;
+                    youtubeWrapper.appendChild(youtubeSection);
+                    const youtubeContainer = document.getElementById('youtube-container');
+
+                    youtubeData.forEach(video => {
+                        const videoCard = document.createElement('a');
+                        videoCard.href = `https://www.youtube.com/watch?v=${video.id.videoId}`;
+                        videoCard.target = "_blank";
+                        videoCard.className = 'p-4 bg-gray-800 rounded-lg shadow-md border border-gray-700 hover:bg-gray-700 transition-colors duration-200 cursor-pointer block';
+                        
+                        videoCard.innerHTML = `
+                            <img src="${video.snippet.thumbnails.high.url}" alt="${video.snippet.title}" class="w-full h-auto rounded-md mb-2">
+                            <h3 class="text-lg font-bold text-white mb-1 line-clamp-2">${video.snippet.title}</h3>
+                            <p class="text-sm text-gray-400 line-clamp-2">${video.snippet.channelTitle}</p>
+                        `;
+                        youtubeContainer.appendChild(videoCard);
+                    });
+                } else {
+                    youtubeWrapper.innerHTML = '<p class="text-center text-red-400">Failed to load YouTube videos or none found.</p>';
+                }
+
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                feedsWrapper.innerHTML = '<p class="text-red-400 text-center">Failed to load feeds.</p>';
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchNotes();
+            fetchFeeds();
+        });
+    </script>
+</body>
+</html>
