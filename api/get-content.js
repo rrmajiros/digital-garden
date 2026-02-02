@@ -6,12 +6,21 @@ const FEED_URLS = {
     residentialCruising: process.env.RESIDENTIAL_CRUISING_FEED
 };
 
-const parser = new Parser();
+const YOUTUBE_RSS_URL = 'https://www.youtube.com/feeds/videos.xml?channel_id=UCXst3XCShZ1Ag7jGiQs-SfA';
+
+const parser = new Parser({
+    customFields: {
+        item: [
+            ['media:group', 'mediaGroup'],
+            ['yt:videoId', 'videoId']
+        ]
+    }
+});
 
 module.exports = async (req, res) => {
     try {
         const feedsData = {};
-        const youtubeData = [];
+        let youtubeData = [];
 
         // --- Fetch RSS Feeds ---
         const fetchPromises = Object.keys(FEED_URLS).map(async (key) => {
@@ -48,22 +57,26 @@ module.exports = async (req, res) => {
         feedsData.villaVie = combinedVillaVieItems;
         feedsData.residentialCruising = residentialCruisingItems;
 
-        // --- Fetch YouTube Videos ---
-        const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY;
-        
-        // Search query refined for 'Villa Vie Odyssey'
-        const searchTerms = 'Villa Vie Odyssey News';
-        const youtubeSearchUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(searchTerms)}&type=video&maxResults=6&order=date&key=${YOUTUBE_API_KEY}`;
-        
-        if (YOUTUBE_API_KEY) {
-            try {
-                const youtubeResponse = await axios.get(youtubeSearchUrl);
-                youtubeData.push(...youtubeResponse.data.items);
-            } catch (youtubeError) {
-                console.error('Error fetching YouTube videos:', youtubeError.response?.data?.error?.message || youtubeError.message);
-            }
-        } else {
-            console.error('YouTube API key is not set.');
+        // --- Fetch YouTube Videos (RSS Method - Keyless) ---
+        try {
+            const ytFeed = await parser.parseURL(YOUTUBE_RSS_URL);
+            youtubeData = ytFeed.items.map(item => {
+                // Extract video ID and thumbnail from the RSS item
+                const videoId = item.videoId || item.id.split(':').pop();
+                const thumbnail = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
+                return {
+                    id: { videoId },
+                    snippet: {
+                        title: item.title,
+                        channelTitle: 'Villa Vie Residences',
+                        thumbnails: {
+                            high: { url: thumbnail }
+                        }
+                    }
+                };
+            }).slice(0, 6);
+        } catch (ytError) {
+            console.error('Error fetching YouTube RSS:', ytError);
         }
 
         res.setHeader('Content-Type', 'application/json');
