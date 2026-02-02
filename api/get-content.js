@@ -6,17 +6,6 @@ const FEED_URLS = {
     residentialCruising: process.env.RESIDENTIAL_CRUISING_FEED
 };
 
-// Use the exact Channel ID for Villa Vie Residences
-const YOUTUBE_RSS_URL = 'https://www.youtube.com/feeds/videos.xml?channel_id=UC1BQVhFTEJfSnNGQW1vcVJ4';
-
-const parser = new Parser({
-    customFields: {
-        item: [
-            ['yt:videoId', 'videoId']
-        ]
-    }
-});
-
 module.exports = async (req, res) => {
     try {
         const feedsData = {};
@@ -27,6 +16,7 @@ module.exports = async (req, res) => {
             const url = FEED_URLS[key];
             if (!url) return { key, items: [] };
             try {
+                const parser = new Parser();
                 const feed = await parser.parseURL(url);
                 return { key, items: feed.items };
             } catch (urlError) {
@@ -38,27 +28,22 @@ module.exports = async (req, res) => {
         feedsData.villaVie = results.find(r => r.key === 'villaVie')?.items || [];
         feedsData.residentialCruising = results.find(r => r.key === 'residentialCruising')?.items || [];
 
-        // --- Fetch YouTube Videos (RSS Method) ---
-        try {
-            console.log('Fetching YouTube RSS:', YOUTUBE_RSS_URL);
-            const ytFeed = await parser.parseURL(YOUTUBE_RSS_URL);
-            console.log('YouTube items found:', ytFeed.items.length);
-            
-            youtubeData = ytFeed.items.map(item => {
-                const videoId = item.videoId || item.id.split(':').pop();
-                return {
-                    id: { videoId },
-                    snippet: {
-                        title: item.title,
-                        channelTitle: 'Villa Vie Residences',
-                        thumbnails: {
-                            high: { url: `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg` }
-                        }
-                    }
-                };
-            }).slice(0, 6);
-        } catch (ytError) {
-            console.error('Error fetching YouTube RSS:', ytError.message);
+        // --- Fetch YouTube Videos (Search Method - Secure Server-Side) ---
+        const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY;
+        
+        if (YOUTUBE_API_KEY) {
+            try {
+                // Search for the latest "Villa Vie Odyssey" videos from any creator
+                const searchTerms = 'Villa Vie Odyssey';
+                const youtubeSearchUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(searchTerms)}&type=video&maxResults=6&order=date&key=${YOUTUBE_API_KEY}`;
+                
+                const youtubeResponse = await axios.get(youtubeSearchUrl);
+                youtubeData = youtubeResponse.data.items;
+            } catch (youtubeError) {
+                console.error('Error fetching YouTube search results:', youtubeError.response?.data?.error?.message || youtubeError.message);
+            }
+        } else {
+            console.error('YouTube API key is missing in server environment.');
         }
 
         res.setHeader('Content-Type', 'application/json');
