@@ -12,16 +12,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #020617; /* Slate 950 - Deep dark for maximum contrast */
-            --card-bg: #0f172a; /* Slate 900 */
+            --bg: #020617; 
+            --card-bg: #0f172a; 
             --accent: #38bdf8;
-            --text-main: #f8fafc; /* Slate 50 - Brighter white */
+            --text-main: #f8fafc; 
             --text-muted: #94a3b8;
         }
         body {
             font-family: 'Outfit', sans-serif;
-            background-color: var(--bg);
-            color: var(--text-main);
+            background-color: #020617 !important; /* Forced Deep Slate */
+            color: #f8fafc !important; /* Forced Bright White */
         }
         .mono {
             font-family: 'JetBrains Mono', monospace;
@@ -32,20 +32,24 @@
             -webkit-box-orient: vertical;
             -webkit-line-clamp: 3;
         }
-        .prose h1, .prose h2, .prose h3 { color: white; font-weight: 800; margin-top: 1.5rem; margin-bottom: 0.75rem; }
-        .prose p { margin-bottom: 1rem; line-height: 1.6; color: #cbd5e1; /* Slate 300 for better readability */ }
+        .prose h1, .prose h2, .prose h3 { color: white !important; font-weight: 800; margin-top: 1.5rem; margin-bottom: 0.75rem; }
+        .prose p { margin-bottom: 1rem; line-height: 1.6; color: #cbd5e1 !important; }
         .prose ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 1rem; }
-        .prose a { color: var(--accent); text-decoration: underline; }
+        .prose a { color: #38bdf8 !important; text-decoration: underline; }
         
         .hero-gradient {
-            background: radial-gradient(circle at top right, rgba(56, 189, 248, 0.07), transparent);
+            background: radial-gradient(circle at top right, rgba(56, 189, 248, 0.05), transparent);
         }
         .custom-scrollbar::-webkit-scrollbar { width: 8px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #0f172a; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        
+        /* Ensure all links are visible */
+        a { transition: all 0.2s; }
+        a:hover { filter: brightness(1.2); }
     </style>
 </head>
-<body class="min-h-screen hero-gradient">
+<body class="min-h-screen hero-gradient text-slate-50">
 
     <div class="max-w-7xl mx-auto px-4 py-12 md:py-20">
         <!-- Header -->
@@ -56,7 +60,7 @@
             <h1 class="text-5xl md:text-7xl font-black text-white mb-6 tracking-tight">
                 Digital <span class="text-sky-400 italic">Compost</span>
             </h1>
-            <p class="text-xl text-slate-400 max-w-3xl mx-auto font-light leading-relaxed">
+            <p class="text-xl text-slate-300 max-w-3xl mx-auto font-light leading-relaxed">
                 A place for raw ideas to break down, cross-pollinate, and become fertile. Navigating the intersection of Music Row and the Great Loop.
             </p>
         </header>
@@ -71,11 +75,6 @@
                 <div class="text-sky-400 text-sm mono">01 — LATEST</div>
             </div>
             <div id="news-container" class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <!-- Loading State -->
-                <div class="animate-pulse flex flex-col space-y-4">
-                    <div class="h-64 bg-slate-900 rounded-2xl w-full border border-slate-800"></div>
-                    <div class="h-8 bg-slate-900 rounded w-3/4"></div>
-                </div>
             </div>
         </section>
 
@@ -122,7 +121,7 @@
     </footer>
 
     <!-- Fullscreen Modal -->
-    <div id="fullscreen-modal" class="fixed inset-0 bg-black/90 backdrop-blur-md flex justify-center items-center p-4 md:p-10 z-50 hidden opacity-0 transition-opacity duration-300">
+    <div id="fullscreen-modal" class="fixed inset-0 bg-black/95 backdrop-blur-xl flex justify-center items-center p-4 md:p-10 z-50 hidden opacity-0 transition-opacity duration-300">
         <div class="relative w-full h-full max-w-5xl bg-slate-900 rounded-3xl shadow-2xl border border-slate-800 flex flex-col overflow-hidden">
             <div class="p-4 md:p-6 border-b border-slate-800 flex justify-between items-center shrink-0">
                 <div id="modal-date" class="text-xs mono text-sky-400 uppercase tracking-widest"></div>
@@ -132,7 +131,7 @@
             </div>
             <div class="p-8 md:p-16 overflow-y-auto grow custom-scrollbar">
                 <h2 id="modal-title" class="text-4xl md:text-5xl font-black text-white mb-8 leading-tight"></h2>
-                <div id="modal-content" class="prose prose-invert max-w-none text-slate-300"></div>
+                <div id="modal-content" class="prose prose-invert max-w-none text-slate-200"></div>
             </div>
         </div>
     </div>
@@ -178,11 +177,11 @@
                     newsContainer.innerHTML = '';
                     news.forEach(item => {
                         const card = document.createElement('div');
-                        card.className = 'group cursor-pointer bg-slate-900/50 rounded-2xl overflow-hidden border border-slate-800 hover:border-sky-500/50 transition-all';
+                        card.className = 'group cursor-pointer bg-slate-900 rounded-2xl overflow-hidden border border-slate-800 hover:border-sky-500 transition-all';
                         const displayImage = item.image || '/assets/nashville-to-sea.png';
                         card.innerHTML = `
                             <div class="aspect-video overflow-hidden bg-black">
-                                <img src="${displayImage}" alt="${item.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90 group-hover:opacity-100">
+                                <img src="${displayImage}" alt="${item.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80 group-hover:opacity-100">
                             </div>
                             <div class="p-6">
                                 <div class="text-xs mono text-sky-400 mb-3">${item.published || 'RECENT'}</div>
@@ -205,7 +204,7 @@
                     notesContainer.innerHTML = '';
                     notes.forEach(note => {
                         const card = document.createElement('div');
-                        card.className = 'p-6 bg-slate-900/40 rounded-xl border border-slate-800 hover:bg-slate-800 transition-all cursor-pointer group';
+                        card.className = 'p-6 bg-slate-900 rounded-xl border border-slate-800 hover:bg-slate-800 transition-all cursor-pointer group';
                         card.innerHTML = `
                             <h3 class="text-lg font-bold text-white mb-2 group-hover:text-sky-400 transition-colors">${note.title}</h3>
                             <div class="text-slate-400 text-sm line-clamp-3 font-light">${note.content || ''}</div>
@@ -229,7 +228,7 @@
                             </div>
                             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                 ${data.feeds[key].map(item => `
-                                    <a href="${item.link}" target="_blank" class="p-6 bg-slate-900/40 rounded-xl border border-slate-800 hover:border-sky-500/30 transition-all group">
+                                    <a href="${item.link}" target="_blank" class="p-6 bg-slate-900 rounded-xl border border-slate-800 hover:border-sky-500/30 transition-all group">
                                         <h3 class="font-bold text-white mb-2 line-clamp-2 group-hover:text-sky-400 transition-colors">${item.title}</h3>
                                         <div class="text-slate-400 text-xs line-clamp-3 font-light">${item.contentSnippet || item.summary || ''}</div>
                                     </a>
@@ -240,8 +239,8 @@
                     });
 
                     youtubeContainer.innerHTML = data.youtube.map(video => `
-                        <a href="https://www.youtube.com/watch?v=${video.id.videoId}" target="_blank" class="group bg-slate-900/40 rounded-2xl overflow-hidden border border-slate-800 hover:border-sky-500/50 transition-all">
-                            <img src="${video.snippet.thumbnails.high.url}" class="w-full aspect-video object-cover opacity-80 group-hover:opacity-100 transition-all duration-500">
+                        <a href="https://www.youtube.com/watch?v=${video.id.videoId}" target="_blank" class="group bg-slate-900 rounded-2xl overflow-hidden border border-slate-800 hover:border-sky-500/50 transition-all">
+                            <img src="${video.snippet.thumbnails.high.url}" class="w-full aspect-video object-cover opacity-70 group-hover:opacity-100 transition-all duration-500">
                             <div class="p-4">
                                 <h3 class="font-bold text-white mb-1 line-clamp-2">${video.snippet.title}</h3>
                                 <p class="text-slate-500 text-xs mono uppercase">${video.snippet.channelTitle}</p>
