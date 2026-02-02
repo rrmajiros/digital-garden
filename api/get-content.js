@@ -6,12 +6,12 @@ const FEED_URLS = {
     residentialCruising: process.env.RESIDENTIAL_CRUISING_FEED
 };
 
-const YOUTUBE_RSS_URL = 'https://www.youtube.com/feeds/videos.xml?channel_id=UCXst3XCShZ1Ag7jGiQs-SfA';
+// Use the exact Channel ID for Villa Vie Residences
+const YOUTUBE_RSS_URL = 'https://www.youtube.com/feeds/videos.xml?channel_id=UC1BQVhFTEJfSnNGQW1vcVJ4';
 
 const parser = new Parser({
     customFields: {
         item: [
-            ['media:group', 'mediaGroup'],
             ['yt:videoId', 'videoId']
         ]
     }
@@ -25,58 +25,40 @@ module.exports = async (req, res) => {
         // --- Fetch RSS Feeds ---
         const fetchPromises = Object.keys(FEED_URLS).map(async (key) => {
             const url = FEED_URLS[key];
-            if (!url) {
-                console.error(`Environment variable for ${key} feed is not set.`);
-                return { key, items: [] };
-            }
+            if (!url) return { key, items: [] };
             try {
                 const feed = await parser.parseURL(url);
                 return { key, items: feed.items };
             } catch (urlError) {
-                console.error(`Error parsing or fetching URL for key: ${key}`, urlError);
                 return { key, items: [] };
             }
         });
 
         const results = await Promise.all(fetchPromises);
-        
-        const villaVieItems = results.find(r => r.key === 'villaVie')?.items || [];
-        const residentialCruisingItems = results.find(r => r.key === 'residentialCruising')?.items || [];
+        feedsData.villaVie = results.find(r => r.key === 'villaVie')?.items || [];
+        feedsData.residentialCruising = results.find(r => r.key === 'residentialCruising')?.items || [];
 
-        const villaVieLinks = new Set(villaVieItems.map(item => item.link));
-        const filteredCruisingItems = residentialCruisingItems.filter(item => {
-            const isRelevant = (item.title && item.title.includes('Villa Vie')) || 
-                                (item.contentSnippet && item.contentSnippet.includes('Villa Vie'));
-            const isDuplicate = villaVieLinks.has(item.link);
-            return isRelevant && !isDuplicate;
-        });
-
-        const combinedVillaVieItems = [...villaVieItems, ...filteredCruisingItems];
-        combinedVillaVieItems.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
-
-        feedsData.villaVie = combinedVillaVieItems;
-        feedsData.residentialCruising = residentialCruisingItems;
-
-        // --- Fetch YouTube Videos (RSS Method - Keyless) ---
+        // --- Fetch YouTube Videos (RSS Method) ---
         try {
+            console.log('Fetching YouTube RSS:', YOUTUBE_RSS_URL);
             const ytFeed = await parser.parseURL(YOUTUBE_RSS_URL);
+            console.log('YouTube items found:', ytFeed.items.length);
+            
             youtubeData = ytFeed.items.map(item => {
-                // Extract video ID and thumbnail from the RSS item
                 const videoId = item.videoId || item.id.split(':').pop();
-                const thumbnail = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
                 return {
                     id: { videoId },
                     snippet: {
                         title: item.title,
                         channelTitle: 'Villa Vie Residences',
                         thumbnails: {
-                            high: { url: thumbnail }
+                            high: { url: `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg` }
                         }
                     }
                 };
             }).slice(0, 6);
         } catch (ytError) {
-            console.error('Error fetching YouTube RSS:', ytError);
+            console.error('Error fetching YouTube RSS:', ytError.message);
         }
 
         res.setHeader('Content-Type', 'application/json');
@@ -84,7 +66,7 @@ module.exports = async (req, res) => {
         res.status(200).json({ feeds: feedsData, youtube: youtubeData });
 
     } catch (error) {
-        console.error('Error in main try-catch block:', error);
-        res.status(500).json({ error: 'Failed to get content due to a server error.' });
+        console.error('Main error:', error.message);
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 };
