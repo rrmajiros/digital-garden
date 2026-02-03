@@ -4,18 +4,23 @@ const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(process
 
 module.exports = async (req, res) => {
     try {
+        // Only fetch records with Status = 'Done' (Airtable-side "Published")
         const records = await base('OdysseyNews').select({
             view: 'Grid view',
+            filterByFormula: "{Status} = 'Done'",
             sort: [{ field: 'Published', direction: 'desc' }]
         }).firstPage();
 
         const news = records.map(record => {
+            const attachments = record.get('Image') || [];
+            const imageUrl = attachments.length > 0 ? attachments[0].url : record.get('ImageURL');
+            
             return {
                 id: record.id,
                 title: record.get('Title'),
                 content: record.get('Content'),
                 link: record.get('Link'),
-                image: record.get('ImageURL'),
+                image: imageUrl,
                 published: record.get('Published'),
                 status: record.get('Status')
             };
