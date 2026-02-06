@@ -3,7 +3,8 @@ const axios = require('axios');
 
 const FEED_URLS = {
     villaVie: process.env.VILLA_VIE_FEED,
-    residentialCruising: process.env.RESIDENTIAL_CRUISING_FEED
+    residentialCruising: process.env.RESIDENTIAL_CRUISING_FEED,
+    villaVieYouTube: process.env.VILLA_VIE_YOUTUBE_FEED
 };
 
 // Targeted Playlist: Villa Vie Odyssey
@@ -37,6 +38,7 @@ module.exports = async (req, res) => {
         const results = await Promise.all(fetchPromises);
         feedsData.villaVie = results.find(r => r.key === 'villaVie')?.items || [];
         feedsData.residentialCruising = results.find(r => r.key === 'residentialCruising')?.items || [];
+        feedsData.villaVieYouTube = results.find(r => r.key === 'villaVieYouTube')?.items || [];
 
         // --- Fetch YouTube Videos (Playlist RSS Method - Keyless & Robust) ---
         try {
