@@ -4,10 +4,10 @@ const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(process
 
 module.exports = async (req, res) => {
     try {
-        // Only fetch records with Status = 'Done' (Airtable-side "Published")
-        const records = await base('OdysseyNews').select({
+        // Only fetch records with Status = 'Published' (Airtable-side "Published")
+        const records = await base('Personal Blog').select({
             view: 'Grid view',
-            filterByFormula: "{Status} = 'Done'",
+            filterByFormula: "{Status} = 'Published'",
             sort: [{ field: 'Published', direction: 'desc' }]
         }).firstPage();
 
